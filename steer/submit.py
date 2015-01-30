@@ -1,0 +1,110 @@
+#! /usr/bin/env python
+
+import os, sys
+from getopt import getopt
+
+class Jobparams(object):
+
+    def __init__(self):
+        self.__executable = ""
+        self.__globalsandbox = ""
+        self.__nchunk = 0
+        self.__chunksize = 0
+
+    def SetExecutable(self, exe):
+        self.__executable = exe
+
+    def SetGlobalSandbox(self, sand):
+        self.__globalsandbox = sand
+        if not os.path.exists(self.__globalsandbox):
+            os.makedirs(self.__globalsandbox, 0755)
+
+    def SetNChunk(self, nch):
+        self.__nchunk = nch
+
+    def SetChunksize(self, nin):
+        self.__chunksize = nin
+
+    def GetExecutable(self):
+        return self.__executable
+
+    def GetGlobalSandbox(self):
+        return self.__globalsandbox
+
+    def GetNChunk(self):
+        return self.__nchunk
+
+    def GetChunksize(self):
+        return self.__chunksize
+
+def split(filelist, jobparams):
+    chunksize = jobparams.GetChunksize()
+    currentchunk = 0
+    ncurrent = 0
+    infile = open(filelist, 'r')
+    fbuffer= []
+    for inf in infile:
+        fbuffer.append(inf.rstrip())
+        ncurrent += 1
+        if ncurrent == chunksize:
+            chunkdir = "%s/job%d" %(jobparams.GetGlobalSandbox(), currentchunk)
+            os.makedirs(chunkdir, 0755)
+            chunkfile = open("%s/files.txt" %(chunkdir), 'w')
+            for entry in fbuffer:
+                chunkfile.write("%s\n" %(entry))
+            chunkfile.close()
+            fbuffer = []
+            currentchunk += 1
+            ncurrent = 0
+    if ncurrent != 0:
+        # last chunk
+        chunkdir = "%s/job%d" %(jobparams.GetGlobalSandbox(), currentchunk)
+        os.makedirs(chunkdir, 0755)
+        chunkfile = open("%s/files.txt" %(chunkdir), 'w')
+        for entry in fbuffer:
+            chunkfile.write("%s\n" %(entry))
+        chunkfile.close()
+        currentchunk += 1
+    jobparams.SetNChunk(currentchunk)
+
+def CreateSubjobParams(jobparams, subjobOut):
+    jobParamsNew = Jobparams()
+    jobParamsNew.SetGlobalSandbox("%s/%s" %(jobparams.GetGlobalSandbox(), subjobOut))
+    jobParamsNew.SetExecutable(jobparams.GetExecutable())
+    jobParamsNew.SetNChunk(jobparams.GetNChunk())
+    jobParamsNew.SetChunksize(jobparams.GetChunksize())
+    return jobParamsNew
+
+def main():
+    opt,arg = getopt(sys.argv[1:], "e:i:o:c:")
+
+    jobparams = Jobparams()
+    inputbase = ""
+    chunksize = 20
+    for o,a in opt:
+        if o == "-e":
+            jobparams.SetExecutable(a)
+        elif o == "-o":
+            jobparams.SetGlobalSandbox(a)
+        elif o == "-c":
+            chunksize = int(a)
+        elif o == "-i":
+            inputbase = a
+
+    jobparams.SetChunksize(chunksize)
+
+    inputfiles = os.listdir(inputbase)
+    for myfile in inputfiles:
+        mybase = myfile.replace("filelist_","")
+        mybase = mybase.replace(".txt", "");
+
+        subjobParams = CreateSubjobParams(jobparams, mybase)
+
+        split("%s/%s" %(inputbase, myfile), subjobParams )
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox())
+        print "submit command: %s" %(submitcommand)
+        os.system(submitcommand)
+
+if __name__ == "__main__":
+    main()
+
