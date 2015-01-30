@@ -1,0 +1,18 @@
+/*
+ * LoadLibs.C
+ *
+ *  Created on: Jan 30, 2015
+ *      Author: markus
+ */
+
+void LoadLibs(){
+        gSystem->Load("libPWGEMCAL");
+        gSystem->Load("libCGAL");
+        gSystem->Load("libfastjet");
+        gSystem->Load("libsiscone");
+        gSystem->Load("libsiscone_spherical");
+        gSystem->Load("libfastjetplugins");
+        gSystem->Load("libfastjettools");
+        gSystem->Load("libfastjetcontribfragile");
+        gSystem->Load("libPWGJEEMCALJetTasks");
+}

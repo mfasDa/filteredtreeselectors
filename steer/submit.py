@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-import os, sys
+import os, sys, shutil
 from getopt import getopt
 
 class Jobparams(object):
@@ -75,12 +75,17 @@ def CreateSubjobParams(jobparams, subjobOut):
     jobParamsNew.SetChunksize(jobparams.GetChunksize())
     return jobParamsNew
 
+def CreateConfig(subjobparams, configfile):
+    shutil.copy(configfile, subjobparams.GetGlobalSandbox())
+
 def main():
-    opt,arg = getopt(sys.argv[1:], "e:i:o:c:")
+    opt,arg = getopt(sys.argv[1:], "e:i:o:c:s:m:")
 
     jobparams = Jobparams()
     inputbase = ""
     chunksize = 20
+    selector = ""
+    configfile = ""
     for o,a in opt:
         if o == "-e":
             jobparams.SetExecutable(a)
@@ -90,6 +95,10 @@ def main():
             chunksize = int(a)
         elif o == "-i":
             inputbase = a
+        elif o == "-s":
+            selector = a
+        elif o == "-m":
+            configfile = os.path.abspath(a)
 
     jobparams.SetChunksize(chunksize)
 
@@ -101,7 +110,8 @@ def main():
         subjobParams = CreateSubjobParams(jobparams, mybase)
 
         split("%s/%s" %(inputbase, myfile), subjobParams )
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox())
+        CreateConfig(subjobParams, configfile)
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector)
         print "submit command: %s" %(submitcommand)
         os.system(submitcommand)
 

@@ -2,27 +2,61 @@
 
 . /usr/share/Modules/init/bash
 
-module use /project/projectdirs/alice/mfasel/modulefiles
-module load mfasel/root/v5-34-25
-
 SANDBOX=$1
+SELECTOR=$2
 mytask=$SGE_TASK_ID
 let "mytask--"
 WD=$SANDBOX/job$mytask
 echo Using working dir $WD
 cd $WD
 
-SOURCELOCATION=/project/projectdirs/alice/mfasel/RAATrigger/trackInJetRecoEff/source
-inputfiles=(runAnalysisLocal.C MakeChain.C ParticlesInJetSelector.C  ParticlesInJetSelector.h)
+modulepaths=()
+modules=()
+nmodpaths=0
+nmodules=0
+while read line; do
+	paththest=$(echo $line | grep modulepath:)
+	moduletest=$(echo $line | grep module:)
+	if [ "x$pathtest" != "$x" ]; then
+		modulepaths[$nmodpaths]=$(echo $line | awk '{split($1, a, ":"); print a[1]}')
+		let "nmodpaths++"
+	fi
+	if [ "x$moduletest" != "$x" ]; then
+		modules[$nmodules]=$(echo $line | awk '{split($1, a, ":"); print a[1]}')
+		let "nmodules++"
+	fi
+done < $WD/config
+
+for mymodpath in ${modulepaths[@]}; do
+	cmd=$(printf "module use %s" $mymodpath)
+	eval $cmd
+done
+for mymod in ${modules[@]}; do
+	cmd=$(print "module load %s" $mymod)
+	eval $cmd
+done
+
+SOURCEBASE=/project/projectdirs/alice/mfasel/RAATrigger/trackInJetRecoEff/steer
+SOURCELOCATION=$SOURCEBASE/steer
+SELECTORLOCATION=$SOURCEBASE/source
+inputfiles=(runAnalysisLocal.C MakeChain.C LoadLibs.C)
+selectors=($SELECTOR.C $SELECTOR.h)
 
 for f in ${inputfiles[@]}; do cp $SOURCELOCATION/$f $WD/; done
+for s in ${selectors[@]}; do cp $SELECTORLOCATION
 
 root -b -q 'runAnalysisLocal.C("files.txt", "ParticlesInJetSelector.C")'
 
+#Remove temporary content
 for f in ${inputfiles[@]}; do
   basein=`basename $f` 
   rm $WD/$basein
 done
+for s in ${selectors[@]}; do
+  basein=`basename $s` 
+  rm $WD/$basein
+done
+
 rm -rf *.d *.so
 echo "Done"
 
