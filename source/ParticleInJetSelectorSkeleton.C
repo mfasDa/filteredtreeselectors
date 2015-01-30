@@ -1,5 +1,5 @@
-#define ParticleInJetSelector_cxx
-// The class definition in ParticleInJetSelector.h has been generated automatically
+#define ParticleInJetSelectorSkeleton_cxx
+// The class definition in ParticleInJetSelectorSkeleton.h has been generated automatically
 // by the ROOT utility TTree::MakeSelector(). This class is derived
 // from the ROOT class TSelector. For more information on the TSelector
 // framework see $ROOTSYS/README/README.SELECTOR or the ROOT User Manual.
@@ -18,17 +18,22 @@
 //
 // To use this file, try the following session on your Tree T:
 //
-// Root > T->Process("ParticleInJetSelector.C")
-// Root > T->Process("ParticleInJetSelector.C","some options")
-// Root > T->Process("ParticleInJetSelector.C+")
+// Root > T->Process("ParticleInJetSelectorSkeleton.C")
+// Root > T->Process("ParticleInJetSelectorSkeleton.C","some options")
+// Root > T->Process("ParticleInJetSelectorSkeleton.C+")
 //
 
-#include "ParticleInJetSelector.h"
+#include "ParticleInJetSelectorSkeleton.h"
 #include <TH2.h>
 #include <TStyle.h>
+#include <TLorentzVector.h>
+
+#include "AliReducedJetInfo.h"
+#include "AliReducedJetConstituent.h"
+#include "AliReducedJetParticle.h"
 
 
-void ParticleInJetSelector::Begin(TTree * /*tree*/)
+void ParticleInJetSelectorSkeleton::Begin(TTree * /*tree*/)
 {
    // The Begin() function is called at the start of the query.
    // When running with PROOF Begin() is only called on the client.
@@ -38,7 +43,7 @@ void ParticleInJetSelector::Begin(TTree * /*tree*/)
 
 }
 
-void ParticleInJetSelector::SlaveBegin(TTree * /*tree*/)
+void ParticleInJetSelectorSkeleton::SlaveBegin(TTree * /*tree*/)
 {
    // The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
@@ -48,12 +53,12 @@ void ParticleInJetSelector::SlaveBegin(TTree * /*tree*/)
 
 }
 
-Bool_t ParticleInJetSelector::Process(Long64_t entry)
+Bool_t ParticleInJetSelectorSkeleton::Process(Long64_t entry)
 {
    // The Process() function is called for each entry in the tree (or possibly
    // keyed object in the case of PROOF) to be processed. The entry argument
    // specifies which entry in the currently loaded tree is to be processed.
-   // It can be passed to either ParticleInJetSelector::GetEntry() or TBranch::GetEntry()
+   // It can be passed to either ParticleInJetSelectorSkeleton::GetEntry() or TBranch::GetEntry()
    // to read either all or the required parts of the data. When processing
    // keyed objects with PROOF, the object is already loaded and is available
    // via the fObject pointer.
@@ -72,7 +77,7 @@ Bool_t ParticleInJetSelector::Process(Long64_t entry)
    return kTRUE;
 }
 
-void ParticleInJetSelector::SlaveTerminate()
+void ParticleInJetSelectorSkeleton::SlaveTerminate()
 {
    // The SlaveTerminate() function is called after all entries or objects
    // have been processed. When running with PROOF SlaveTerminate() is called
@@ -80,7 +85,7 @@ void ParticleInJetSelector::SlaveTerminate()
 
 }
 
-void ParticleInJetSelector::Terminate()
+void ParticleInJetSelectorSkeleton::Terminate()
 {
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
