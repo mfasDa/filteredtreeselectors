@@ -76,6 +76,8 @@ def CreateSubjobParams(jobparams, subjobOut):
     return jobParamsNew
 
 def CreateConfig(subjobparams, configfile):
+    if not os.path.exists(subjobparams.GetGlobalSandbox):
+        os.makedirs(subjobparams.GetGlobalSandbox, 0755)
     shutil.copy(configfile, subjobparams.GetGlobalSandbox())
 
 def main():
