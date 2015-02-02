@@ -15,9 +15,9 @@ testdir=$testbase/job$ntest
 for f in ${files[@]}; do
 	myfile=$(printf "%s#%s" $f $rootfilename)
 	echo $myfile >> $testdir/files.txt
-	let "nfiles++
+	let "nfiles++"
 	if [ $nfiles -ge 100 ]; then 
-		qcmd=$(printf "qsub -l projectio=1,gscratchio=1 -o %s/filetest.log -e %s/filetesterr.log %s/testFile.sh %s %s %s " $inputdir $inputdir $sourcedir $sourcedir $testdir $treename)
+		qcmd=$(printf "qsub -l projectio=1,gscratchio=1 -o %s/filetest.log -e %s/filetesterr.log %s/testFile.sh %s %s %s" $inputdir $inputdir $sourcedir $sourcedir $testdir $treename)
 		eval $cmd
 		let "ntest++"
 		testdir=$testbase/job$ntest
