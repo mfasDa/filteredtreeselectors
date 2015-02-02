@@ -28,6 +28,7 @@
 #include <TH2.h>
 #include <THnSparse.h>
 #include <TParticlePDG.h>
+#include <TProfile.h>
 #include <TStyle.h>
 #include <TLorentzVector.h>
 
@@ -88,6 +89,11 @@ void SelectorJetStructure::SlaveBegin(TTree * /*tree*/)
        fOutput->Add(result);
      }
    }
+
+   fCrossSection = new TProfile("CrossSection", "CrossSection", 11, -0.5, 11.5);
+   fTrials = new TH1D("Trials", "Trials", 11, -0.5, 11.5);
+   fOutput->Add(fCrossSection);
+   fOutput->Add(fTrials);
 }
 
 Bool_t SelectorJetStructure::Process(Long64_t entry)
@@ -116,6 +122,8 @@ Bool_t SelectorJetStructure::Process(Long64_t entry)
    double rlim[] = {0, 0.05, 0.1, 0.2, 0.3, 0.4};
 
    double weight = JetEvent->GetCrossSection()/static_cast<double>(JetEvent->GetNumberOfTrials());
+   fCrossSection->Fill(JetEvent->GetPtHard(), JetEvent->GetCrossSection());
+   fTrials->Fill(JetEvent->GetPtHard(), JetEvent->GetNumberOfTrials());
 
    for(double *ptiter = pttrackmin; ptiter < pttrackmin + sizeof(pttrackmin)/sizeof(double); ++ptiter){
      for(int irad = 0; irad < 5; irad++){
@@ -173,6 +181,8 @@ void SelectorJetStructure::Terminate()
   jetstructure->cd();
   lcontrib->Write("ncontrib", TObject::kSingleKey);
   lsumpt->Write("sumpt", TObject::kSingleKey);
+  fOutput->FindObject("CrossSection")->Write();
+  fOutput->FindObject("Trials")->Write();
   delete jetstructure;
 }
 
@@ -206,5 +216,5 @@ void SelectorJetStructure::InspectJet(AliReducedJetInfo* jet, double ptmin, doub
     htofillpt = fPtHistoMapAll->FindHistogram(ptmin, radmin, radmax);
   }
   if(htofill) htofill->Fill(TMath::Abs(jetvec.Pt()), nconst, weight);
-  if(htofillpt) htofill->Fill(TMath::Abs(jetvec.Pt()), sumpt, weight);
+  if(htofillpt) htofillpt->Fill(TMath::Abs(jetvec.Pt()), sumpt, weight);
 }

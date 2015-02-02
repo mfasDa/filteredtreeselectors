@@ -21,6 +21,7 @@
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class TH2;
+class TProfile;
 
 //class AliReducedJetInfo;
 
@@ -96,10 +97,13 @@ public :
    HistoList     *fPtHistoMapAll;
    HistoList     *fPtHistoMapCharged;
 
+   TProfile      *fCrossSection;
+   TH1           *fTrials;
+
    // List of branches
    TBranch        *b_JetEvent;   //!
 
-   SelectorJetStructure(TTree * /*tree*/ =0) : fChain(0), fContribHistoMapAll(NULL), fContribHistoMapCharged(NULL), fPtHistoMapAll(NULL), fPtHistoMapCharged(NULL) { }
+   SelectorJetStructure(TTree * /*tree*/ =0) : fChain(0), fContribHistoMapAll(NULL), fContribHistoMapCharged(NULL), fPtHistoMapAll(NULL), fPtHistoMapCharged(NULL), fCrossSection(NULL), fTrials(NULL) { }
    virtual ~SelectorJetStructure() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
