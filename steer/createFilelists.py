@@ -13,8 +13,8 @@ def FindFiles(basedir, archivename):
         f = f.rstrip()
         resultlist.append(f)
     return resultlist
-    
-def main(basedir, pthardbin, outputpath):
+
+def CreateListForPtHardBin(basedir, pthardbin, outputpath):
     print "Basedir:     %s" %(basedir)
     print "Outputdir:   %s" %(outputpath)
     print "Pt-hard bin: %d" %(pthardbin)
@@ -27,14 +27,19 @@ def main(basedir, pthardbin, outputpath):
         
         runbase = "%s/%s/%02d" %(basedir, run, pthardbin)
         foundfiles = FindFiles(runbase, "root_archive.zip")
-        
-        if not os.path.exists(outputpath):
-            os.makedirs(outputpath, 0755)
-        outputstream = open("%s/filelist_bin%d.txt" %(outputpath, pthardbin))
         for foundfile in foundfiles:
-            outputstream.write("%s#AnalysisResults.root\n" %(foundfile))
-        outputstream.close()
-
+            listoffiles.append(foundfile)
+        
+    if not os.path.exists(outputpath):
+        os.makedirs(outputpath, 0755)
+    outputstream = open("%s/filelist_bin%d.txt" %(outputpath, pthardbin), 'w')
+    for foundfile in sorted(listoffiles):
+        outputstream.write("%s#AnalysisResults.root\n" %(foundfile))
+    outputstream.close()
+    
+def main(basedir, outputpath):
+    for ibin in range(1, 11):
+        CreateListForPtHardBin(basedir, ibin, outputpath)
 
 if __name__ == "__main__":
-    main(sys.argv[1], int(sys.argv[2]), sys.argv[3])
+    main(sys.argv[1], sys.argv[2])
