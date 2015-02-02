@@ -13,7 +13,7 @@ module load cgal/v4.4
 module load fastjet/v3.0.6_1.012
 module load AliEn/v2-19-217
 
-WD=`readlink -f $gscratch/filetest/$JOB_ID`
+WD=$gscratch/filetest/$JOB_ID
 if [ ! -d $WD ]; then mkdir -p $WD; fi
 echo Workdir $WD
 
