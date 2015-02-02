@@ -28,6 +28,8 @@ def main(basedir, pthardbin, outputpath):
         runbase = "%s/%s/%02d" %(basedir, run, pthardbin)
         foundfiles = FindFiles(runbase, "root_archive.zip")
         
+        if not os.path.exists(outputpath):
+            os.makedirs(outputpath, 0755)
         outputstream = open("%s/filelist_bin%d.txt" %(outputpath, pthardbin))
         for foundfile in foundfiles:
             outputstream.write("%s#AnalysisResults.root\n" %(foundfile))
