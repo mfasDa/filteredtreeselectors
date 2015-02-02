@@ -17,5 +17,6 @@ for f in ${fls[@]}; do
     	cmd=$(printf "%s %s" "$cmd" $FILENAME)
     fi
 	cmd=$(printf "%s %s" "$cmd" $f)
+	let "counter++"
 done
 eval $cmd
