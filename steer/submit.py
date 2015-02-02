@@ -37,6 +37,32 @@ class Jobparams(object):
 
     def GetChunksize(self):
         return self.__chunksize
+    
+class MergeParams(object):
+    
+    def __init__(self):
+        self.__holdid = 0
+        self.__basedir = ""
+        self.__jobname = ""
+        
+    def SetHoldID(self, holdID):
+        self.__holdid = holdID
+        
+    def GetHoldID(self):
+        return self.__holdid
+    
+    def SetJobBasedir(self, jobbase):
+        self.__basedir = jobbase
+        
+    def GetJobBasedir(self):
+        return self.__basedir
+    
+    def SetJobName(self, name):
+        self.__jobname = name
+        
+    def GetJobName(self):
+        return self.__jobname
+        
 
 def split(filelist, jobparams):
     chunksize = jobparams.GetChunksize()
@@ -109,7 +135,7 @@ def main():
     jobparams.SetChunksize(chunksize)
 
     inputfiles = os.listdir(inputbase)
-    jobids = {}
+    joblist = []
     for myfile in inputfiles:
         mybase = myfile.replace("filelist_","")
         mybase = mybase.replace(".txt", "");
@@ -124,12 +150,16 @@ def main():
         jobsubmitterout = jobsubmitterout.replace("Your job-array ","").replace(" has been submitted","")
         jobidstring = jobsubmitterout.split(" ")[0]
         jobids[mybase] = int(jobidstring.split(".")[0])
+        mergeparams = MergeParams();
+        mergeparams.SetHoldID(int(jobidstring.split(".")[0]))
+        mergeparams.SetJobBasedir(subjobParams.GetGlobalSandbox())
+        joblist.append(mergeparams)
         print "extracted job ID %d" %(jobids[mybase])
         
     # submit merger, waiting for the jobs to finish
     mergeexecutable="%s/steer/mergeAuto.sh" %(sourcedir)
-    for mybin,holdid in jobids.iteritems():
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -hold_jid %d %s %s/%s" %(holdid, mergeexecutable, jobparams.GetGlobalSandbox(), mybase) 
+    for mergeparams in joblist:
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -hold_jid %d -wd %s %s %s" %(mergeparams.GetHoldID(), mergeparams.GetJobBasedir(), mergeexecutable, mergeparams.GetJobBasedir()) 
         getstatusoutput(submitcommand)
         
 if __name__ == "__main__":
