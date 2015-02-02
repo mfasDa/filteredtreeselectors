@@ -27,6 +27,7 @@ while read line; do
 			break
 		fi
 	done < $workdir/test.log
+	rm $workdir/test.log
 
 	if [ $status -gt 1 -o $logbad -ne 0 ]; then
 		echo $filetotest >> $workdir/badfiles.txt
