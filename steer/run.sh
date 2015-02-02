@@ -52,7 +52,7 @@ selectors=($SELECTOR.C $SELECTOR.h)
 for f in ${inputfiles[@]}; do cp $SOURCELOCATION/$f $WD/; done
 for s in ${selectors[@]}; do cp $SELECTORLOCATION/$s $WD/; done
 
-runcmd=$(print "root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s.C\")\'" $SELECTOR)
+runcmd=$(printf "root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s.C\")\'" $SELECTOR)
 eval $runcmd
 
 #Remove temporary content
