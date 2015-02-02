@@ -12,9 +12,9 @@ module load fastjet/v3.0.6_1.012
 module load AliEn/v2-19-217
 
 
-while read line; do
-	echo $line
-	cmd=$(printf "root -b -q %s/LoadLibs.C \'%s/testfile.C(\"%s\",\"%s\")\' &> %s/test.log" $sourcedir $sourcedir $line $treetotest $workdir) 
+while read myfile; do
+	echo $myfile
+	cmd=$(printf "root -b -q %s/LoadLibs.C \'%s/testfile.C(\"%s\",\"%s\")\' &> %s/test.log" $sourcedir $sourcedir $myfile $treetotest $workdir) 
 	eval $cmd
 	status=$?
 
@@ -31,8 +31,8 @@ while read line; do
 	rm $workdir/test.log
 
 	if [ $status -gt 1 -o $logbad -ne 0 ]; then
-		echo $line >> $workdir/badfiles.txt
+		echo $myfile >> $workdir/badfiles.txt
 	else
-		echo $line >> $workdir/goodfiles.txt
+		echo $myfile >> $workdir/goodfiles.txt
 	fi
 done < $workdir/files.txt
