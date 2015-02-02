@@ -39,7 +39,7 @@ echo "Using modules:"
 echo "==========================="
 for mymod in ${modules[@]}; do
 	echo $mymod
-	cmd=$(print "module load %s" $mymod)
+	cmd=$(printf "module load %s" $mymod)
 	eval $cmd
 done
 
