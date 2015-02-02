@@ -13,7 +13,10 @@ def FindFiles(basedir, archivename):
         resultlist.append(f)
     return resultlist
     
-def main(basedir, pthardbin):
+def main(basedir, pthardbin, outputpath):
+    print "Basedir:     %s" %(basedir)
+    print "Outputdir:   %s" %(outputdir)
+    print "Pt-hard bin: %d" %(pthardbin)
     listoffiles = []
     for run in os.listdir(basedir):
         if not run.isdigit():
@@ -24,11 +27,11 @@ def main(basedir, pthardbin):
         runbase = "%s/%s/%02d" %(basedir, run, pthardbin)
         foundfiles = FindFiles(runbase, "root_archive.zip")
         
-        outputstream = open("filelist_bin%d.txt" %(pthardbin))
+        outputstream = open("%s/filelist_bin%d.txt" %(outputpath, pthardbin))
         for foundfile in foundfiles:
             outputstream.write("%s#AnalysisResults.root\n" %(foundfile))
         outputstream.close()
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
