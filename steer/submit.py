@@ -144,7 +144,7 @@ def main():
 
         split("%s/%s" %(inputbase, myfile), subjobParams )
         CreateConfig(subjobParams, configfile)
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -o %s/joboutput.log -e %s/joberror.log -wd %s %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
         print "submit command: %s" %(submitcommand)
         jobsubmitterout = getstatusoutput(submitcommand)[1]
         jobsubmitterout = jobsubmitterout.replace("Your job-array ","").replace(" has been submitted","")
@@ -159,7 +159,7 @@ def main():
     # submit merger, waiting for the jobs to finish
     mergeexecutable="%s/steer/mergeAuto.sh" %(sourcedir)
     for mergeparams in joblist:
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -hold_jid %d -wd %s %s %s" %(mergeparams.GetHoldID(), mergeparams.GetJobBasedir(), mergeexecutable, mergeparams.GetJobBasedir()) 
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -hold_jid %d -o %s/mergeoutput.log -e %s/mergeerror.log -wd %s %s %s" %(mergeparams.GetHoldID(), mergeparams.GetJobBasedir(), mergeparams.GetJobBasedir(), mergeparams.GetJobBasedir(), mergeexecutable, mergeparams.GetJobBasedir()) 
         getstatusoutput(submitcommand)
         
 if __name__ == "__main__":
