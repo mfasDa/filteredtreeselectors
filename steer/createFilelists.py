@@ -5,7 +5,7 @@ from commands import getstatusoutput
 
 def FindFiles(basedir, archivename):
     print "Finding all %s in %s" %(archivename, basedir)
-    filestr = getstatusoutput("find %s --name %s" %(basedir, archivename))[1]
+    filestr = getstatusoutput("find %s -name %s" %(basedir, archivename))[1]
     listoffiles = filestr.split("\n") 
     resultlist = []
     for f in listoffiles:
