@@ -130,7 +130,8 @@ def main():
 
         split("%s/%s" %(inputbase, myfile), subjobParams )
         jobdict = {"selector":selector, "sourcedir":sourcedir, "sandbox":jobparams.GetGlobalSandbox(), "modulepath":listofmodulepaths, "module": listofmodules}
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s \"%s\"" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), jsonhandler.dumps(jobdict))
+        jobjson = jsonhandler.dumps(jobdict)
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s \"%s\"" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), jobjson)
         print "submit command: %s" %(submitcommand)
         os.system(submitcommand)
 
