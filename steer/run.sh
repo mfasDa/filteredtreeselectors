@@ -19,11 +19,11 @@ while read line; do
 	paththest=$(echo $line | grep modulepaths:)
 	moduletest=$(echo $line | grep modules:)
 	if [ "x$pathtest" != "$x" ]; then
-		modulepaths[$nmodpaths]=$(echo $line | awk '{split($1, a, ":"); print a[1]}')
+		modulepaths[$nmodpaths]=$(echo $line | awk '{split($1, a, ":"); print a[2]}')
 		let "nmodpaths++"
 	fi
 	if [ "x$moduletest" != "$x" ]; then
-		modules[$nmodules]=$(echo $line | awk '{split($1, a, ":"); print a[1]}')
+		modules[$nmodules]=$(echo $line | awk '{split($1, a, ":"); print a[2]}')
 		let "nmodules++"
 	fi
 done < $WD/config
