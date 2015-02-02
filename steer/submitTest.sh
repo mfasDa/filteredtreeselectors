@@ -1,6 +1,6 @@
 #! /bin/bash
 
-inputdir=$1
+inputdir=`readlink -f $1`
 rootfilename=$2
 treename=$3
 

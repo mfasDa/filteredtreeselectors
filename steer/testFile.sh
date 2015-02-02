@@ -12,7 +12,7 @@ module load cgal/v4.4
 module load fastjet/v3.0.6_1.012
 module load AliEn/v2-19-217
 
-WD=$GSCRATCH/filetest/$JOB_ID
+WD=`readlink -f $GSCRATCH/filetest/$JOB_ID`
 if [ ! -d $WD ]; then mkdir -p $WD; fi
 
 cmd=$(printf "root -b -q %s/LoadLibs.C \'%s/testfile.C(\"%s\",\"%s\")\' &> $WD/test.log" $sourcedir $sourcedir $filetotest $treetotest) 
