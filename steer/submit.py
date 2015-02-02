@@ -77,9 +77,11 @@ def CreateSubjobParams(jobparams, subjobOut):
     return jobParamsNew
 
 def CreateConfig(subjobparams, configfile):
-    if not os.path.exists(subjobparams.GetGlobalSandbox()):
-        os.makedirs(subjobparams.GetGlobalSandbox, 0755)
-    shutil.copy(configfile, subjobparams.GetGlobalSandbox())
+    for i in range(0, subjobparams.GetNChunk()):
+        taskdir = os.path.join(subjobparams.GetGlobalSandbox(), "job%d" %(i))
+        if not os.path.exists(taskdir):
+            os.makedirs(taskdir, 0755)
+        shutil.copy(configfile, os.path.join(taskdir, "config"))
 
 def main():
     opt,arg = getopt(sys.argv[1:], "i:o:c:s:m:")
