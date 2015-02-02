@@ -15,4 +15,8 @@ void LoadLibs(){
         gSystem->Load("libfastjettools");
         gSystem->Load("libfastjetcontribfragile");
         gSystem->Load("libPWGJEEMCALJetTasks");
+
+        // Add include paths (fastjet and ALICE_PHYSICS):
+        gSystem->AddIncludePath(Form("-I%s/include", gSystem->Getenv("ALICE_PHYSICS")));
+        gSystem->AddIncludePath(Form("-I%s/include", gSystem->Getenv("FASTJET")));
 }
