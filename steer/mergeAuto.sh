@@ -14,7 +14,7 @@ counter=0
 for f in ${fls[@]}; do
     if [ $counter -eq 0 ]; then
     	FILENAME=`basename $f`
-    	cmd=$(printf "%s %s" "cmd" $FILENAME)
+    	cmd=$(printf "%s %s" "$cmd" $FILENAME)
     fi
 	cmd=$(printf "%s %s" "$cmd" $f)
 done
