@@ -2,6 +2,7 @@
 
 import os, sys, shutil
 from getopt import getopt
+from CGIHTTPServer import executable
 
 class Jobparams(object):
 
@@ -81,17 +82,18 @@ def CreateConfig(subjobparams, configfile):
     shutil.copy(configfile, subjobparams.GetGlobalSandbox())
 
 def main():
-    opt,arg = getopt(sys.argv[1:], "e:i:o:c:s:m:")
+    opt,arg = getopt(sys.argv[1:], "i:o:c:s:m:")
+    sourcedir = os.path.abspath(os.path.dirname(sys.argv[0]))
+    sourcedir = sourcedir.replace("/steer","")
 
     jobparams = Jobparams()
+    jobparams.SetExecutable(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0]))), "run.sh")
     inputbase = ""
     chunksize = 20
     selector = ""
     configfile = ""
     for o,a in opt:
-        if o == "-e":
-            jobparams.SetExecutable(a)
-        elif o == "-o":
+        if o == "-o":
             jobparams.SetGlobalSandbox(a)
         elif o == "-c":
             chunksize = int(a)
@@ -113,7 +115,7 @@ def main():
 
         split("%s/%s" %(inputbase, myfile), subjobParams )
         CreateConfig(subjobParams, configfile)
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector)
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
         print "submit command: %s" %(submitcommand)
         os.system(submitcommand)
 

@@ -4,6 +4,7 @@
 
 SANDBOX=$1
 SELECTOR=$2
+SOURCEBASE=$3
 mytask=$SGE_TASK_ID
 let "mytask--"
 WD=$SANDBOX/job$mytask
@@ -43,7 +44,6 @@ for mymod in ${modules[@]}; do
 done
 
 
-SOURCEBASE=/project/projectdirs/alice/mfasel/RAATrigger/trackInJetRecoEff/steer
 SOURCELOCATION=$SOURCEBASE/steer
 SELECTORLOCATION=$SOURCEBASE/source
 inputfiles=(runAnalysisLocal.C MakeChain.C LoadLibs.C)
