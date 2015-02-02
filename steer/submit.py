@@ -149,7 +149,6 @@ def main():
         jobsubmitterout = getstatusoutput(submitcommand)[1]
         jobsubmitterout = jobsubmitterout.replace("Your job-array ","").replace(" has been submitted","")
         jobidstring = jobsubmitterout.split(" ")[0]
-        jobids[mybase] = int(jobidstring.split(".")[0])
         mergeparams = MergeParams();
         mergeparams.SetHoldID(int(jobidstring.split(".")[0]))
         mergeparams.SetJobBasedir(subjobParams.GetGlobalSandbox())
