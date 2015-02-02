@@ -20,7 +20,7 @@ for f in ${files[@]}; do
 	echo $myfile >> $testdir/files.txt
 	let "nfiles++"
 	if [ $nfiles -ge 100 ]; then 
-		qcmd=$(printf "qsub -l projectio=1,gscratchio=1 -o %s/filetest.log -e %s/filetesterr.log %s/testFile.sh %s %s %s" $testbase $testbase $sourcedir $sourcedir $testdir $treename)
+		qcmd=$(printf "qsub -l projectio=1,gscratchio=1 -o %s/filetest.log -e %s/filetesterr.log %s/testFile.sh %s %s %s" $testdir $testdir $sourcedir $sourcedir $testdir $treename)
 		eval $qcmd
 		let "ntest++"
 		testdir=$testbase/job$ntest
@@ -30,6 +30,6 @@ for f in ${files[@]}; do
 done
 if [ $nfiles -gt 0 ]; then
 	#submit last bunch
-	qcmd=$(printf "qsub -l projectio=1,gscratchio=1 -o %s/filetest.log -e %s/filetesterr.log %s/testFile.sh %s %s %s" $testbase $testbase $sourcedir $sourcedir $testdir $treename)
+	qcmd=$(printf "qsub -l projectio=1,gscratchio=1 -o %s/filetest.log -e %s/filetesterr.log %s/testFile.sh %s %s %s" $testdir $testdir $sourcedir $sourcedir $testdir $treename)
 	eval $qcmd
 fi
