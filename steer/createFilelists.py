@@ -44,6 +44,6 @@ def main(basedir, outputpath):
 if __name__ == "__main__":
     basedir = sys.argv[1]
     outputpath = os.path.join(basedir, "treelists")
-    if len(sys.argv > 2):
+    if len(sys.argv) > 2:
         outputpath = sys.argv[2]
     main(sys.argv[1], outputpath)
