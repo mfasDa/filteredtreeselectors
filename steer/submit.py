@@ -121,9 +121,10 @@ def main():
         submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
         print "submit command: %s" %(submitcommand)
         jobsubmitterout = getstatusoutput(submitcommand)[1]
-        jobsubmitterout = jobsubmitterout.replace("Your job-array ").replace(" has been submitted")
+        jobsubmitterout = jobsubmitterout.replace("Your job-array ","").replace(" has been submitted","")
         jobidstring = jobsubmitterout.split(" ")[0]
         jobids[mybase] = int(jobidstring.split(".")[0])
+        print "extracted job ID %d" %(jobids[mybase])
         
     # submit merger, waiting for the jobs to finish
     mergeexecutable="%s/steer/mergeAuto.sh" %(sourcedir)
