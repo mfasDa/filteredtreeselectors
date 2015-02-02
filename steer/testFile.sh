@@ -13,7 +13,6 @@ module load AliEn/v2-19-217
 
 
 while read myfile; do
-	echo $myfile
 	cmd=$(printf "root -b -q %s/LoadLibs.C \'%s/testfile.C(\"%s\",\"%s\")\' &> %s/test.log" $sourcedir $sourcedir $myfile $treetotest $workdir) 
 	eval $cmd
 	status=$?
