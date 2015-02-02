@@ -50,7 +50,7 @@ inputfiles=(runAnalysisLocal.C MakeChain.C LoadLibs.C)
 selectors=($SELECTOR.C $SELECTOR.h)
 
 for f in ${inputfiles[@]}; do cp $SOURCELOCATION/$f $WD/; done
-for s in ${selectors[@]}; do cp $SELECTORLOCATION
+for s in ${selectors[@]}; do cp $SELECTORLOCATION/$s $WD/; done
 
 runcmd=$(print "root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s.C\")\'" $SELECTOR)
 eval $runcmd
@@ -64,6 +64,7 @@ for s in ${selectors[@]}; do
   basein=`basename $s` 
   rm $WD/$basein
 done
+rm config
 
 rm -rf *.d *.so
 echo "Done"
