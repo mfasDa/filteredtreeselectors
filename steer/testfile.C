@@ -12,10 +12,12 @@ void testfile(const char *filename, const char *treename){
     int ntok(0);
     TIter tokIter(tokens);
     TObjString *mystr(0x0);
-    gDirectory = gFile;
     while((mystr = dynamic_cast<TObjString *>(tokIter))){
       if(ntok < tokens->GetEntries()-1){
-        gDirectory->cd(mystr->String().Data());
+        if(ntok == 0)
+          gFile->cd(mystr->String().Data());
+        else
+          gDirectory->cd(mystr->String().Data());
       } else {
         totest = gDirectory->Get(mystr->String().Data());
       }
