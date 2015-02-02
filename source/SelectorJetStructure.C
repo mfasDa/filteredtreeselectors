@@ -121,7 +121,7 @@ Bool_t SelectorJetStructure::Process(Long64_t entry)
      for(int irad = 0; irad < 5; irad++){
        TIter jetIter(JetEvent->GetListOfJets());
        AliReducedJetInfo *myjet(NULL);
-       while((myjet = dynamic_cast<AliReducedJetInfo *>(jetIter))){
+       while((myjet = dynamic_cast<AliReducedJetInfo *>(jetIter()))){
          InspectJet(myjet, *ptiter, rlim[irad], rlim[irad+1], true, weight);
          InspectJet(myjet, *ptiter, rlim[irad], rlim[irad+1], false, weight);
        }
@@ -197,7 +197,7 @@ void SelectorJetStructure::InspectJet(AliReducedJetInfo* jet, double ptmin, doub
     nconst++;
     sumpt += TMath::Abs(ptvec.Pt());
   }
-  TH2 *htofill(NULL), htofillpt(NULL);
+  TH2 *htofill(NULL), *htofillpt(NULL);
   if(charged){
     htofill = fContribHistoMapCharged->FindHistogram(ptmin, radmin, radmax);
     htofillpt = fPtHistoMapCharged->FindHistogram(ptmin, radmin, radmax);

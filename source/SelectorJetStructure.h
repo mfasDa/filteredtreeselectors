@@ -45,6 +45,12 @@ public:
 private:
   class HistoContent{
   public:
+    HistoContent():
+      fPtMin(0),
+      fRMin(0),
+      fRMax(0),
+      fHistogram(NULL)
+    {}
     HistoContent(double ptmin, double rmin, double rmax, TH2 *histo):
       fPtMin(ptmin),
       fRMin(rmin),
