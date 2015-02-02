@@ -4,6 +4,7 @@ sourcedir=$1
 filetotest=$2
 treetotest=$3
 outputdir=$4
+gscratch=$5
 
 . /usr/share/Modules/init/bash
 module use /cvmfs/alice.cern.ch/x86_64-2.6-gnu-4.1.2/Modules/modulefiles
@@ -12,7 +13,7 @@ module load cgal/v4.4
 module load fastjet/v3.0.6_1.012
 module load AliEn/v2-19-217
 
-WD=`readlink -f $GSCRATCH/filetest/$JOB_ID`
+WD=`readlink -f $gscratch/filetest/$JOB_ID`
 if [ ! -d $WD ]; then mkdir -p $WD; fi
 
 cmd=$(printf "root -b -q %s/LoadLibs.C \'%s/testfile.C(\"%s\",\"%s\")\' &> $WD/test.log" $sourcedir $sourcedir $filetotest $treetotest) 
