@@ -96,7 +96,7 @@ def main():
     opt,arg = getopt(sys.argv[1:], "i:o:c:s:m:")
     sourcedir = os.path.abspath(os.path.dirname(sys.argv[0]))
     sourcedir = sourcedir.replace("/steer","")
-    executable = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "run.sh")
+    executable = os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "run.py")
 
     jobparams = Jobparams()
     jobparams.SetExecutable(executable)
