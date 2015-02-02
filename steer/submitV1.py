@@ -122,6 +122,8 @@ def main():
     listofmodulepaths = config["modulepaths"]
 
     inputfiles = os.listdir(inputbase)
+    jobids = {}
+
     for myfile in inputfiles:
         mybase = myfile.replace("filelist_","")
         mybase = mybase.replace(".txt", "");
@@ -133,7 +135,16 @@ def main():
         jobjson = jsonhandler.dumps(jobdict)
         submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -wd %s %s \"%s\"" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), jobjson)
         print "submit command: %s" %(submitcommand)
-        os.system(submitcommand)
+        jobsubmitterout = getstatusoutput(submitcommand)[1]
+        jobsubmitterout = jobsubmitterout.replace("Your job-array ").replace(" has been submitted")
+        jobidstring = jobsubmitterout.split(" ")[0]
+        jobids[mybase] = int(jobidstring.split(".")[0])
+        
+    # submit merger, waiting for the jobs to finish
+    mergeexecutable="%s/steer/mergeAuto.sh" %(sourcedir)
+    for mybin,holdid in jobids.iteritems():
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -hold_jid %d %s %s/%s" %(holdid, mergeexecutable, jobparams.GetGlobalSandbox(), mybase) 
+        getstatusoutput(submitcommand)
 
 if __name__ == "__main__":
     main()
