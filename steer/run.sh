@@ -27,14 +27,21 @@ while read line; do
 	fi
 done < $WD/config
 
+echo "Using modulespaths:"
+echo "==========================="
 for mymodpath in ${modulepaths[@]}; do
+	echo $mymodpath
 	cmd=$(printf "module use %s" $mymodpath)
 	eval $cmd
 done
+echo "Using modules:"
+echo "==========================="
 for mymod in ${modules[@]}; do
+	echo $mymod
 	cmd=$(print "module load %s" $mymod)
 	eval $cmd
 done
+
 
 SOURCEBASE=/project/projectdirs/alice/mfasel/RAATrigger/trackInJetRecoEff/steer
 SOURCELOCATION=$SOURCEBASE/steer
