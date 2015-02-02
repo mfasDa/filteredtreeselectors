@@ -154,7 +154,7 @@ def main():
         mergeparams.SetHoldID(int(jobidstring.split(".")[0]))
         mergeparams.SetJobBasedir(subjobParams.GetGlobalSandbox())
         joblist.append(mergeparams)
-        print "extracted job ID %d" %(jobids[mybase])
+        print "extracted job ID %d" %(mergeparams.GetHoldID())
         
     # submit merger, waiting for the jobs to finish
     mergeexecutable="%s/steer/mergeAuto.sh" %(sourcedir)
