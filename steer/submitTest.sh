@@ -19,7 +19,7 @@ for f in ${files[@]}; do
 	myfile=$(printf "%s#%s" $f $rootfilename)
 	echo $myfile >> $testdir/files.txt
 	let "nfiles++"
-	if [ $nfiles -ge 100 ]; then 
+	if [ $nfiles -ge 300 ]; then 
 		qcmd=$(printf "qsub -l projectio=1,gscratchio=1 -o %s/filetest.log -e %s/filetesterr.log %s/testFile.sh %s %s %s" $testdir $testdir $sourcedir $sourcedir $testdir $treename)
 		eval $qcmd
 		let "ntest++"
