@@ -144,14 +144,14 @@ void SelectorJetStructure::Terminate()
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
 
-  TList *lcontrib = new TList;
-  TList *lsumpt = new TList;
+  TList *lcontrib = new TList; lcontrib->SetOwner(true);
+  TList *lsumpt = new TList; lsumpt->SetOwner(true);
 
-  TList *lcall = new TList; lcall->SetName("all");
-  TList *lccharged = new TList; lccharged->SetName("charged");
+  TList *lcall = new TList; lcall->SetName("all"); lcall->SetOwner(true);
+  TList *lccharged = new TList; lccharged->SetName("charged"); lccharged->SetOwner(true);
   lcontrib->Add(lcall); lcontrib->Add(lccharged);
-  TList *lsall = new TList; lsall->SetName("all");
-  TList *lscharged = new TList; lscharged->SetName("charged");
+  TList *lsall = new TList; lsall->SetName("all"); lsall->SetOwner(true);
+  TList *lscharged = new TList; lscharged->SetName("charged"); lscharged->SetOwner(true);
   lsumpt->Add(lsall); lsumpt->Add(lscharged);
 
 
@@ -163,7 +163,7 @@ void SelectorJetStructure::Terminate()
       if(histname.Contains("Charged")) lccharged->Add(histo);
       else lcall->Add(histo);
     }
-    else if(histname.Contains("hContrib")){
+    else if(histname.Contains("hSumPt")){
       if(histname.Contains("Charged")) lscharged->Add(histo);
       else lsall->Add(histo);
     }
