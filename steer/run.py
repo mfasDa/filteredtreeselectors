@@ -57,6 +57,7 @@ def Cleanup(filelist):
 
 def __main__():
     configuration = ConfigParser(sys.argv[1])
+    print "Job configuration: " %(sys.argv[1])
     jobid = os.environ["JOB_ID"]
     taskid = os.environ["SGE_TASK_ID"]
     
