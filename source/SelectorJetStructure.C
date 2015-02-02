@@ -90,8 +90,8 @@ void SelectorJetStructure::SlaveBegin(TTree * /*tree*/)
      }
    }
 
-   fCrossSection = new TProfile("CrossSection", "CrossSection", 11, -0.5, 11.5);
-   fTrials = new TH1D("Trials", "Trials", 11, -0.5, 11.5);
+   fCrossSection = new TProfile("CrossSection", "CrossSection", 11, -0.5, 10.5);
+   fTrials = new TH1D("Trials", "Trials", 11, -0.5, 10.5);
    fOutput->Add(fCrossSection);
    fOutput->Add(fTrials);
 }
@@ -207,6 +207,10 @@ void SelectorJetStructure::InspectJet(AliReducedJetInfo* jet, double ptmin, doub
     nconst++;
     sumpt += TMath::Abs(ptvec.Pt());
   }
+
+  // remove NULL entries
+  if(!nconst) return;
+
   TH2 *htofill(NULL), *htofillpt(NULL);
   if(charged){
     htofill = fContribHistoMapCharged->FindHistogram(ptmin, radmin, radmax);
