@@ -89,7 +89,7 @@ def main():
     sourcedir = sourcedir.replace("/steer","")
 
     jobparams = Jobparams()
-    jobparams.SetExecutable(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0]))), "run.sh")
+    jobparams.SetExecutable(os.path.join(os.path.abspath(os.path.dirname(sys.argv[0])), "run.sh"))
     inputbase = ""
     chunksize = 20
     selector = ""
