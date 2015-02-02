@@ -45,7 +45,8 @@ selectors=($SELECTOR.C $SELECTOR.h)
 for f in ${inputfiles[@]}; do cp $SOURCELOCATION/$f $WD/; done
 for s in ${selectors[@]}; do cp $SELECTORLOCATION
 
-root -b -q 'runAnalysisLocal.C("files.txt", "ParticlesInJetSelector.C")'
+runcmd=$(print "root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s.C\")\'" $SELECTOR)
+eval $runcmd
 
 #Remove temporary content
 for f in ${inputfiles[@]}; do
