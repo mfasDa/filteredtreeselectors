@@ -15,8 +15,9 @@ module load AliEn/v2-19-217
 
 WD=`readlink -f $gscratch/filetest/$JOB_ID`
 if [ ! -d $WD ]; then mkdir -p $WD; fi
+echo Workdir $WD
 
-cmd=$(printf "root -b -q %s/LoadLibs.C \'%s/testfile.C(\"%s\",\"%s\")\' &> $WD/test.log" $sourcedir $sourcedir $filetotest $treetotest) 
+cmd=$(printf "root -b -q %s/LoadLibs.C \'%s/testfile.C(\"%s\",\"%s\")\' &> %s/test.log" $sourcedir $sourcedir $filetotest $treetotest $WD) 
 eval $cmd
 status=$?
 
