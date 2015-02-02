@@ -15,7 +15,7 @@ def FindFiles(basedir, archivename):
     
 def main(basedir, pthardbin, outputpath):
     print "Basedir:     %s" %(basedir)
-    print "Outputdir:   %s" %(outputdir)
+    print "Outputdir:   %s" %(outputpath)
     print "Pt-hard bin: %d" %(pthardbin)
     listoffiles = []
     for run in os.listdir(basedir):
