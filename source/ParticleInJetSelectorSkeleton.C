@@ -72,7 +72,7 @@ Bool_t ParticleInJetSelectorSkeleton::Process(Long64_t entry)
    // Use fStatus to set the return value of TTree::Process().
    //
    // The return value is currently not used.
-
+   GetEntry(entry);
 
    return kTRUE;
 }
