@@ -16,13 +16,13 @@ modules=()
 nmodpaths=0
 nmodules=0
 while read line; do
-	paththest=$(echo $line | grep modulepaths:)
+	pathtest=$(echo $line | grep modulepaths:)
 	moduletest=$(echo $line | grep modules:)
-	if [ "x$pathtest" != "$x" ]; then
+	if [ "x$pathtest" != "x" ]; then
 		modulepaths[$nmodpaths]=$(echo $line | awk '{split($1, a, ":"); print a[2]}')
 		let "nmodpaths++"
 	fi
-	if [ "x$moduletest" != "$x" ]; then
+	if [ "x$moduletest" != "x" ]; then
 		modules[$nmodules]=$(echo $line | awk '{split($1, a, ":"); print a[2]}')
 		let "nmodules++"
 	fi
