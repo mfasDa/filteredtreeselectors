@@ -32,7 +32,7 @@ def CreateListForPtHardBin(basedir, pthardbin, outputpath):
         
     if not os.path.exists(outputpath):
         os.makedirs(outputpath, 0755)
-    outputstream = open("%s/filelist_bin%d.txt" %(outputpath, pthardbin), 'w')
+    outputstream = open(os.path.join(outputpath, "filelist_bin%d.txt" %(pthardbin)), 'w')
     for foundfile in sorted(listoffiles):
         outputstream.write("%s#AnalysisResults.root\n" %(foundfile))
     outputstream.close()
@@ -42,4 +42,8 @@ def main(basedir, outputpath):
         CreateListForPtHardBin(basedir, ibin, outputpath)
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    basedir = sys.argv[1]
+    outputpath = os.path.join(basedir, "treelists")
+    if len(sys.argv > 2):
+        outputpath = sys.argv[2]
+    main(sys.argv[1], outputpath)
