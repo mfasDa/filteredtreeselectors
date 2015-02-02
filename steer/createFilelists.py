@@ -25,7 +25,7 @@ def CreateListForPtHardBin(basedir, pthardbin, outputpath):
         if not os.path.isdir("%s/%s" %(basedir,run)):
             continue
         
-        runbase = "%s/%s/%02d" %(basedir, run, pthardbin)
+        runbase = "%s/%s/%d" %(basedir, run, pthardbin)
         foundfiles = FindFiles(runbase, "root_archive.zip")
         for foundfile in foundfiles:
             listoffiles.append(foundfile)
