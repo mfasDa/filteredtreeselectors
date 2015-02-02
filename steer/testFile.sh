@@ -11,7 +11,7 @@ module load cgal/v4.4
 module load fastjet/v3.0.6_1.012
 module load AliEn/v2-19-217
 
-cmd=$(printf "root -l %s/LoadLibs.C \'%s/testfile.C(\"%s\",%s\")\'" $sourcedir $sourcedir $filetotest $treetotest) 
+cmd=$(printf "root -l %s/LoadLibs.C \'%s/testfile.C(\"%s\","%s\")\'" $sourcedir $sourcedir $filetotest $treetotest) 
 eval $cmd
 status=$?
 
