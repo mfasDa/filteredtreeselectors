@@ -117,6 +117,14 @@ def ReadConfig(configfile):
                 modules.append(tok.lstrip().rstrip())
     return {"modulepaths": modulepaths, "modules":modules}
 
+def SelectorExists(sourcepath, selectorname):
+    result = True
+    endings = [".C", ".h"]
+    for ending in endings:
+        if not os.path.exists("%s/%s%s" %(sourcepath, selectorname, ending)):
+            result = False
+    return result
+
 def main():
     opt,arg = getopt(sys.argv[1:], "i:o:c:s:m:")
     sourcedir = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -140,6 +148,15 @@ def main():
             selector = a
         elif o == "-m":
             configfile = os.path.abspath(a)
+            
+    if not len(selector):
+        print "Selector needs to be specified"
+        sys.exit(2)
+
+    # Check whether sector exists
+    if not SelectorExists(os.path.join(sourcedir, "source"), selector):
+        print "Selector %s missing" %(selector)
+        sys.exit(2)
 
     jobparams.SetChunksize(chunksize)
     config = ReadConfig(configfile)
