@@ -46,6 +46,20 @@ def RunJob(selector, modenv):
     os.system("executable.sh")
     os.remove("executable.sh")
     
+def ValidateJob(logfile):
+    searchstrings = ["Segmentation violation", "Segmentation fault", "Floating point exception", "bad_alloc"]
+    result = True
+    logreader = open(logfile, 'r')
+    for line in logreader:
+        for errorsource in searchstrings:
+            if errorsource in line:
+                result = False
+                break
+    logreader.close()
+    return result
+
+def TouchFile(filename):
+    os.systen("touch %s" %(filename))
     
 def CopyFiles(inputdir, filelist):
     for inputfile in filelist:
@@ -80,6 +94,11 @@ def __main__():
         
     # everything prepared - run
     RunJob(configuration.GetValue("selector"), modenv)
+    jobstatus = ValidateJob("analysis.log")
+    if jobstatus:
+        TouchFile("output_valid")
+    else:
+        TouchFile("output_bad")
     
     # cleanup after done
     listforcleanup = []

@@ -17,6 +17,10 @@ def MergeFiles(rootfile, listoffiles):
     filestomerge = []
     for myfile in listoffiles:
         if rootfile in myfile:
+            mydirname = os.path.dirname(myfile)
+            if os.path.exists(os.path.join(mydirname, "output_bad")):
+                # exclude bad files from merging
+                continue
             filestomerge.append(myfile)
             
     submitcommand = "hadd %s" %(rootfile)
