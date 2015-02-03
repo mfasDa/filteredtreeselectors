@@ -40,7 +40,7 @@ def RunJob(selector, modenv):
         execwriter.write("module use %s\n" %(mypath))
     for mymod in modenv.GetListOfModules():
         execwriter.write("module load %s\n" %(mymod)) 
-    execwriter.write("root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s\")\'" %(selector))
+    execwriter.write("root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s\")\' &> analysis.log" %(selector))
     execwriter.close()
     os.chmod("execultable.sh", 0755)
     os.system("executable.sh")
