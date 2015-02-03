@@ -12,6 +12,11 @@ fls=($(find $PWD -name *.root))
 cmd="hadd -f"
 counter=0
 for f in ${fls[@]}; do
+    jobdir=`dirname $f`
+    if [ -f $jobdir/output_bad ]; then
+    	# exclude bad files from merging
+    	continue
+    fi
     if [ $counter -eq 0 ]; then
     	FILENAME=`basename $f`
     	cmd=$(printf "%s %s" "$cmd" $FILENAME)

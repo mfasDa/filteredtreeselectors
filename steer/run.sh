@@ -55,6 +55,38 @@ for s in ${selectors[@]}; do cp $SELECTORLOCATION/$s $WD/; done
 runcmd=$(printf "root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s.C\")\' $> analysis.log" $SELECTOR)
 eval $runcmd
 
+# validate result
+rootstatus=1
+while read line; do
+	testSegViol=$(echo $line | grep Segmentation violation)
+	testSegFault=$(echo $line | grep Segmentation fault)
+	testFloating=$(echo $line | grep Floating point exception)
+	testBadAlloc=$(echo $line | grep  bad_alloc)
+	
+	if [ "x$testSegViol" != "x" ]; then
+		rootstatus=0
+		break
+	fi
+	
+	if [ "x$testSegFault" != "x" ]; then
+		rootstatus=0
+		break
+	fi
+	
+	if [ "x$testFloating" != "x" ]; then
+		rootstatus=0
+		break
+	fi
+	
+	if [ "x$testBadAlloc" != "x" ]; then
+		rootatatus=0
+		break
+	fi
+done < analysis.log
+
+if [ $rootstatus -eq 1 ]; then touch output_valid fi
+if [ $rootstatus -eq 0 ]; then touch output_bad; fi
+
 #Remove temporary content
 for f in ${inputfiles[@]}; do
   basein=`basename $f` 
