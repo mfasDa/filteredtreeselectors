@@ -52,11 +52,12 @@ selectors=($SELECTOR.C $SELECTOR.h)
 for f in ${inputfiles[@]}; do cp $SOURCELOCATION/$f $WD/; done
 for s in ${selectors[@]}; do cp $SELECTORLOCATION/$s $WD/; done
 
-runcmd=$(printf "root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s.C\")\' $> analysis.log" $SELECTOR)
+runcmd=$(printf "root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s.C\")\' &> analysis.log" $SELECTOR)
+echo "Running root command: $runcmd"
 eval $runcmd
 
 # validate result
-rootstatus=1
+rootstatus=1		# keeps the validation result
 while read line; do
 	testSegViol=$(echo $line | grep Segmentation violation)
 	testSegFault=$(echo $line | grep Segmentation fault)
