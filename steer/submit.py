@@ -103,7 +103,7 @@ def CreateSubjobParams(jobparams, subjobOut):
     return jobParamsNew
 
 def CreateConfig(subjobparams, configfile):
-    for i in range(0, subjobparams.GetNChunk()):
+    for i in range(1, subjobparams.GetNChunk()+1):
         taskdir = os.path.join(subjobparams.GetGlobalSandbox(), "job%d" %(i))
         if not os.path.exists(taskdir):
             os.makedirs(taskdir, 0755)
