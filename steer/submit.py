@@ -66,7 +66,7 @@ class MergeParams(object):
 
 def split(filelist, jobparams):
     chunksize = jobparams.GetChunksize()
-    currentchunk = 0
+    currentchunk = 1
     ncurrent = 0
     infile = open(filelist, 'r')
     fbuffer= []
@@ -160,8 +160,10 @@ def main():
         subjobParams = CreateSubjobParams(jobparams, mybase)
 
         split("%s/%s" %(inputbase, myfile), subjobParams )
+        if not os.path.exists("%s/logs" %(subjobParams.GetGlobalSandbox())):
+            os.makedirs("%s/logs" %(subjobParams.GetGlobalSandbox()), 0755)
         CreateConfig(subjobParams, configfile)
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -o %s/joboutput.log -e %s/joberror.log -wd %s %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -j y -o %s/job$TASK_ID/joboutputx.log -wd %s %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
         print "submit command: %s" %(submitcommand)
         jobsubmitterout = getstatusoutput(submitcommand)[1]
         jobsubmitterout = jobsubmitterout.replace("Your job-array ","").replace(" has been submitted","")

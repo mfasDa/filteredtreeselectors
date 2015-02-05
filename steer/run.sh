@@ -6,7 +6,6 @@ SANDBOX=$1
 SELECTOR=$2
 SOURCEBASE=$3
 mytask=$SGE_TASK_ID
-let "mytask--"
 WD=$SANDBOX/job$mytask
 echo Using working dir $WD
 cd $WD
@@ -59,10 +58,10 @@ eval $runcmd
 # validate result
 rootstatus=1		# keeps the validation result
 while read line; do
-	testSegViol=$(echo $line | grep Segmentation violation)
-	testSegFault=$(echo $line | grep Segmentation fault)
-	testFloating=$(echo $line | grep Floating point exception)
-	testBadAlloc=$(echo $line | grep  bad_alloc)
+	testSegViol=$(echo $line | grep "Segmentation violation")
+	testSegFault=$(echo $line | grep "Segmentation fault")
+	testFloating=$(echo $line | grep "Floating point exception")
+	testBadAlloc=$(echo $line | grep  "bad_alloc")
 	
 	if [ "x$testSegViol" != "x" ]; then
 		rootstatus=0
