@@ -92,7 +92,7 @@ def split(filelist, jobparams):
             chunkfile.write("%s\n" %(entry))
         chunkfile.close()
         currentchunk += 1
-    jobparams.SetNChunk(currentchunk)
+    jobparams.SetNChunk(currentchunk-1)
 
 def CreateSubjobParams(jobparams, subjobOut):
     jobParamsNew = Jobparams()
@@ -160,10 +160,8 @@ def main():
         subjobParams = CreateSubjobParams(jobparams, mybase)
 
         split("%s/%s" %(inputbase, myfile), subjobParams )
-        if not os.path.exists("%s/logs" %(subjobParams.GetGlobalSandbox())):
-            os.makedirs("%s/logs" %(subjobParams.GetGlobalSandbox()), 0755)
         CreateConfig(subjobParams, configfile)
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -j y -o %s/job$TASK_ID/joboutput.log -wd %s %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -j y -o %s/job\$TASK_ID/joboutput.log -wd %s %s %s %s %s" %(subjobParams.GetNChunk()+1, subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
         print "submit command: %s" %(submitcommand)
         jobsubmitterout = getstatusoutput(submitcommand)[1]
         jobsubmitterout = jobsubmitterout.replace("Your job-array ","").replace(" has been submitted","")
