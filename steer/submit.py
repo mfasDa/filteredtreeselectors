@@ -161,7 +161,7 @@ def main():
 
         split("%s/%s" %(inputbase, myfile), subjobParams )
         CreateConfig(subjobParams, configfile)
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -j y -o %s/job\$TASK_ID/joboutput.log -wd %s %s %s %s %s" %(subjobParams.GetNChunk()+1, subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -t 1:%d -j y -o %s/job\$TASK_ID/joboutput.log -wd %s %s %s %s %s" %(subjobParams.GetNChunk(), subjobParams.GetGlobalSandbox(), subjobParams.GetGlobalSandbox(), subjobParams.GetExecutable(), subjobParams.GetGlobalSandbox(), selector, sourcedir)
         print "submit command: %s" %(submitcommand)
         jobsubmitterout = getstatusoutput(submitcommand)[1]
         jobsubmitterout = jobsubmitterout.replace("Your job-array ","").replace(" has been submitted","")
