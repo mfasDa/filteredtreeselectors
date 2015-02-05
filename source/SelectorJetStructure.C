@@ -70,21 +70,25 @@ void SelectorJetStructure::SlaveBegin(TTree * /*tree*/)
      for(int irad = 0; irad < 5; irad++){
        result = new TH2D(Form("hContribAllPt%03dRadmin%03dRadmax%03d", int((*ptiter) *10.), int(rlim[irad]*100), int(rlim[irad+1]*100)),
            Form("All Particles with pt > %1f GeV/c within radii %.2f and %.2f", *ptiter,rlim[irad],rlim[irad+1]), 100, 0., 500., 101, -0.5 , 100.5);
+       result->Sumw2();
        fContribHistoMapAll->Insert(*ptiter, rlim[irad], rlim[irad+1], result);
        fOutput->Add(result);
 
        result = new TH2D(Form("hContribChargedPt%03dRadmin%03dRadmax%03d", int((*ptiter) *10.), int(rlim[irad]*100), int(rlim[irad+1]*100)),
            Form("Charged Particles with pt > %1f GeV/c within radii %.2f and %.2f", *ptiter,rlim[irad],rlim[irad+1]), 100, 0., 500., 101, -0.5 , 100.5);
+       result->Sumw2();
        fContribHistoMapCharged->Insert(*ptiter, rlim[irad], rlim[irad+1], result);
        fOutput->Add(result);
 
        result = new TH2D(Form("hSumPtAllPt%03dRadmin%03dRadmax%03d", int((*ptiter) *10.), int(rlim[irad]*100), int(rlim[irad+1]*100)),
            Form("Sum pt of all Particles with pt > %1f GeV/c within radii %.2f and %.2f", *ptiter,rlim[irad],rlim[irad+1]), 100, 0., 500., 500., 0. , 500);
+       result->Sumw2();
        fPtHistoMapAll->Insert(*ptiter, rlim[irad], rlim[irad+1], result);
        fOutput->Add(result);
 
        result = new TH2D(Form("hSumPtChargedPt%03dRadmin%03dRadmax%03d", int((*ptiter) *10.), int(rlim[irad]*100), int(rlim[irad+1]*100)),
            Form("Sum pt of charged Particles with pt > %1f GeV/c within radii %.2f and %.2f", *ptiter,rlim[irad],rlim[irad+1]), 100, 0., 500., 500., 0. , 500);
+       result->Sumw2();
        fPtHistoMapCharged->Insert(*ptiter, rlim[irad], rlim[irad+1], result);
        fOutput->Add(result);
      }
