@@ -11,6 +11,6 @@ FILENAME=$1
 listoffiles=($(find $OD -name $FILENAME | grep -v $OD/$FILENAME))
 mergecommand="hadd -f $FILENAME"
 for myfile in ${listoffiles[@]}; do
-	mergecommand=$(printf "%s %s" "$mergecommad" $myfile)
+	mergecommand=$(printf "%s %s" "$mergecommand" $myfile)
 done
 eval $mergecommand
