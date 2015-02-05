@@ -175,7 +175,7 @@ def main():
     # submit merger, waiting for the jobs to finish
     mergeexecutable="%s/steer/mergeAuto.sh" %(sourcedir)
     for mergeparams in joblist:
-        submitcommand = "qsub -l gscratchio=1,projectio=1 -hold_jid %d -j y-o %s/mergeoutput.log -wd %s %s %s" %(mergeparams.GetHoldID(), mergeparams.GetJobBasedir(), mergeparams.GetJobBasedir(), mergeexecutable, mergeparams.GetJobBasedir()) 
+        submitcommand = "qsub -l gscratchio=1,projectio=1 -hold_jid %d -j y -o %s/mergeoutput.log -wd %s %s %s" %(mergeparams.GetHoldID(), mergeparams.GetJobBasedir(), mergeparams.GetJobBasedir(), mergeexecutable, mergeparams.GetJobBasedir()) 
         getstatusoutput(submitcommand)
         
 if __name__ == "__main__":

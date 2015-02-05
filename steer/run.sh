@@ -87,8 +87,16 @@ while read line; do
 	fi
 done < analysis.log
 
-if [ $rootstatus -eq 1 ]; then echo "output valid" >> output_valid; fi
-if [ $rootstatus -eq 0 ]; then echo "output bad" >> output_bad; fi
+if [ $rootstatus -eq 1 ]; then 
+	echo "Result good"
+	echo "output valid" >> output_valid 
+fi
+if [ $rootstatus -eq 0 ]; then 
+	echo "Result bad"
+	echo "output bad" >> output_bad
+fi
+#remove analysis.log since it is displayed inside the log file
+rm analysis.log
 
 #Remove temporary content
 for f in ${inputfiles[@]}; do
