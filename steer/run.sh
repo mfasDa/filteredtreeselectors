@@ -55,6 +55,9 @@ runcmd=$(printf "root -b -q \'runAnalysisLocal.C(\"files.txt\", \"%s.C\")\' &> a
 echo "Running root command: $runcmd"
 eval $runcmd
 
+# print log output
+cat analysis.log
+
 # validate result
 rootstatus=1		# keeps the validation result
 while read line; do
