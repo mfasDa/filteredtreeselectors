@@ -71,12 +71,14 @@ void SelectorPtClusters::SlaveBegin(TTree * /*tree*/)
    DefineAxis(hClusterHist->GetAxis(2), "ncontrib", "number of charged contibutors", ncontribBinning);
    DefineAxis(hClusterHist->GetAxis(3), "radius", "jet radius", radiusBinning);
    DefineAxis(hClusterHist->GetAxis(4), "nclusters", "Number of TPC clusters", nclustersBinning);
+   hClusterHist->Sumw2();
    hPtResHist = new THnSparseD("hPtResHist", "THnSparse for pt resolution", 5, nbinsPtRes);
    DefineAxis(hPtResHist->GetAxis(0), "jetpt", "p_{t, jet} (GeV/c)", ptbinning);
    DefineAxis(hPtResHist->GetAxis(1), "trackpt", "p_{t, track} (GeV/c)", trackPtBinning);
    DefineAxis(hPtResHist->GetAxis(2), "ncontrib", "number of charged contibutors", ncontribBinning);
    DefineAxis(hPtResHist->GetAxis(3), "radius", "jet radius", radiusBinning);
    DefineAxis(hPtResHist->GetAxis(4), "ptresolution", "(p_{t,rec} - p_{t,gen})/(p_{t,gen})", ptresbinning);
+   hPtResHist->Sumw2();
 
 
    fCrossSection = new TProfile("CrossSection", "CrossSection", 11, -0.5, 10.5);
@@ -118,8 +120,8 @@ Bool_t SelectorPtClusters::Process(Long64_t entry)
      TLorentzVector jetvector;
      recjet->FillLorentzVector(jetvector);
      if(TMath::Abs(jetvector.Eta()) > 0.5) continue;
-     for(TIter trackIter = TIter(recjet->GetListOfMatchedParticles()).Begin(); trackIter != TIter::End(); trackIter++){
-       AliReducedJetParticle *mtrack = static_cast<AliReducedJetParticle *>(trackIter);
+     for(TIter trackIter = TIter(recjet->GetListOfMatchedParticles()).Begin(); trackIter != TIter::End(); ++trackIter){
+       AliReducedJetParticle *mtrack = static_cast<AliReducedJetParticle *>(*trackIter);
        TLorentzVector partvector;
        mtrack->FillLorentzVector(partvector);
        if(TMath::Abs(partvector.Eta())>0.8) continue;
@@ -127,7 +129,7 @@ Bool_t SelectorPtClusters::Process(Long64_t entry)
        double clustercontent[] = {TMath::Abs(jetvector.Pt()), TMath::Abs(partvector.Pt()),
            ncharged, mtrack->GetDistanceToJetMainAxis(), mtrack->GetNumberOfClustersTPC()},
                ptrescontent[] = {TMath::Abs(jetvector.Pt()), TMath::Abs(partvector.Pt()),
-           ncharged, mtrack->GetDistanceToJetMainAxis(), mtrack->GetDeltaPt()/TMath::Abs(partvector.Pt())};
+           ncharged, mtrack->GetDistanceToJetMainAxis(), -mtrack->GetDeltaPt()/TMath::Abs(partvector.Pt())};
 
        hClusterHist->Fill(clustercontent, weight);
        hPtResHist->Fill(ptrescontent, weight);

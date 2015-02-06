@@ -19,6 +19,7 @@
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
+class TProfile;
 namespace HighPtTracks{
 class AliReducedJetInfo;
 }
