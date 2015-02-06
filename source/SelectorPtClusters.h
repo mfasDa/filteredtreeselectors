@@ -12,11 +12,18 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TSelector.h>
+#include <THnSparse.h>
 
 // Header file for the classes stored in the TTree if any.
 #include "AliReducedJetEvent.h"
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
+
+namespace HighPtTracks{
+class AliReducedJetInfo;
+}
+
+class TArrayD;
 
 class SelectorPtClusters : public TSelector {
 public :
@@ -28,7 +35,13 @@ public :
    // List of branches
    TBranch        *b_JetEvent;   //!
 
-   SelectorPtClusters(TTree * /*tree*/ =0) : fChain(0) { }
+   // List of histograms
+   THnSparseD           *hClusterHist;
+   THnSparseD           *hPtResHist;
+   TProfile             *fCrossSection;
+   TH1                  *fTrials;
+
+   SelectorPtClusters(TTree * /*tree*/ =0) : fChain(0) , hClusterHist(0), hPtResHist(0), fCrossSection(0), fTrials(0) { }
    virtual ~SelectorPtClusters() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
@@ -43,6 +56,10 @@ public :
    virtual TList  *GetOutputList() const { return fOutput; }
    virtual void    SlaveTerminate();
    virtual void    Terminate();
+
+   void MakeLinearBinning(TArrayD &array, int nbins, double min, double max) const;
+   int GetChargedContributors(const HighPtTracks::AliReducedJetInfo *recjet) const;
+   void DefineAxis(TAxis *axis, TString name, TString title, const TArrayD &binning) const;
 
    ClassDef(SelectorPtClusters,0);
 };
