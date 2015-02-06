@@ -56,14 +56,14 @@ void SelectorPtClusters::SlaveBegin(TTree * /*tree*/)
    TString option = GetOption();
 
    TArrayD ptbinning; MakeLinearBinning(ptbinning, 100, 0., 200.);
-   TArrayD trackPtBinning; MakeLinearBinning(trackPtBinning, 100, 0., 100.);
+   TArrayD trackPtBinning; MakeLinearBinning(trackPtBinning, 1000, 0., 100.);
    TArrayD nclustersBinning; MakeLinearBinning(nclustersBinning, 161, -0.5, 161.5);
    TArrayD ncontribBinning; MakeLinearBinning(ncontribBinning, 101, -0.5, 100.5);
    TArrayD radiusBinning; MakeLinearBinning(radiusBinning, 100, 0., 0.5);
    TArrayD ptresbinning; MakeLinearBinning(ptresbinning, 100, -1, 1);
 
-   int nbinsClusters[5] = {40, 100, 101, 10, 161},
-       nbinsPtRes[5] = {40, 100, 101, 10, 100};
+   int nbinsClusters[5] = {100, 1000, 101, 100, 161},
+       nbinsPtRes[5] = {100, 1000, 101, 100, 100};
 
    hClusterHist = new THnSparseD("hClusterHist", "THnSparse for cluster related studies", 5, nbinsClusters);
    DefineAxis(hClusterHist->GetAxis(0), "jetpt", "p_{t, jet} (GeV/c)", ptbinning);
