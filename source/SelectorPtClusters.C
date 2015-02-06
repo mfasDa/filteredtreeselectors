@@ -55,11 +55,11 @@ void SelectorPtClusters::SlaveBegin(TTree * /*tree*/)
 
    TString option = GetOption();
 
-   TArrayD ptbinning; MakeLinearBinning(ptbinning, 40, 0., 200.);
+   TArrayD ptbinning; MakeLinearBinning(ptbinning, 100, 0., 200.);
    TArrayD trackPtBinning; MakeLinearBinning(trackPtBinning, 100, 0., 100.);
    TArrayD nclustersBinning; MakeLinearBinning(nclustersBinning, 161, -0.5, 161.5);
    TArrayD ncontribBinning; MakeLinearBinning(ncontribBinning, 101, -0.5, 100.5);
-   TArrayD radiusBinning; MakeLinearBinning(radiusBinning, 10, 0., 0.5);
+   TArrayD radiusBinning; MakeLinearBinning(radiusBinning, 100, 0., 0.5);
    TArrayD ptresbinning; MakeLinearBinning(ptresbinning, 100, -1, 1);
 
    int nbinsClusters[5] = {40, 100, 101, 10, 161},
@@ -122,6 +122,7 @@ Bool_t SelectorPtClusters::Process(Long64_t entry)
      if(TMath::Abs(jetvector.Eta()) > 0.5) continue;
      for(TIter trackIter = TIter(recjet->GetListOfMatchedParticles()).Begin(); trackIter != TIter::End(); ++trackIter){
        AliReducedJetParticle *mtrack = static_cast<AliReducedJetParticle *>(*trackIter);
+       if(!mtrack->IsReconstructed()) continue;
        TLorentzVector partvector;
        mtrack->FillLorentzVector(partvector);
        if(TMath::Abs(partvector.Eta())>0.8) continue;
