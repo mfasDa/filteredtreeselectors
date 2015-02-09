@@ -57,7 +57,7 @@ void SelectorPtClusters::SlaveBegin(TTree * /*tree*/)
 
    TArrayD ptbinning; MakeLinearBinning(ptbinning, 100, 0., 200.);
    TArrayD trackPtBinning; MakeLinearBinning(trackPtBinning, 1000, 0., 100.);
-   TArrayD nclustersBinning; MakeLinearBinning(nclustersBinning, 161, -0.5, 161.5);
+   TArrayD nclustersBinning; MakeLinearBinning(nclustersBinning, 161, -0.5, 160.5);
    TArrayD ncontribBinning; MakeLinearBinning(ncontribBinning, 101, -0.5, 100.5);
    TArrayD radiusBinning; MakeLinearBinning(radiusBinning, 100, 0., 0.5);
    TArrayD ptresbinning; MakeLinearBinning(ptresbinning, 100, -1, 1);
