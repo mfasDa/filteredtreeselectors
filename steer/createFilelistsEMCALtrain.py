@@ -28,7 +28,7 @@ def CreateListForPtHardBin(basedir, outputpath):
     
 def main(basedir, outputpath):
     for ibin in range(1, 11):
-        CreateListForPtHardBin(os.path.join(os.path.abspath(basedir), "bin%d", ibin),  outputpath)
+        CreateListForPtHardBin(os.path.join(os.path.abspath(basedir), "bin%d" %(ibin)),  outputpath)
 
 if __name__ == "__main__":
     basedir = sys.argv[1]
