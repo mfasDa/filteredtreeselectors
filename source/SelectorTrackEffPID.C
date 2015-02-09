@@ -22,11 +22,17 @@
 // Root > T->Process("SelectorTrackEffPID.C","some options")
 // Root > T->Process("SelectorTrackEffPID.C+")
 //
+#include <string>
 
 #include "SelectorTrackEffPID.h"
 #include <TH2.h>
 #include <TStyle.h>
 #include <TLorentzVector.h>
+#include <TMath.h>
+#include <TParticlePDG.h>
+#include <TProfile.h>
+#include <TPDGCode.h>
+#include <TString.h>
 
 #include "AliReducedJetInfo.h"
 #include "AliReducedJetConstituent.h"
@@ -51,6 +57,43 @@ void SelectorTrackEffPID::SlaveBegin(TTree * /*tree*/)
 
    TString option = GetOption();
 
+   // We store:
+   // 	jet pt
+   // 	Track pt
+   // 	Track pid (electrons - 0, pions - 1, kaons - 2, protons - 3, others - 4);
+   // 	Number of charged jet constituents
+   // 	Distance to the main jet axis
+
+   TArrayD jetPtBinning; MakeLinearBinning(jetPtBinning, 100, 0., 200.);
+   TArrayD trackPtBinning; MakeLinearBinning(trackPtBinning, 1000, 0., 100.);
+   TArrayD pidBinning; MakeLinearBinning(pidBinning, 5, -0.5, 4.5);
+   TArrayD ncontribBinning; MakeLinearBinning(ncontribBinning, 101, -0.5, 100.5);
+   TArrayD radiusBinning; MakeLinearBinning(radiusBinning, 100, 0., 0.5);
+
+   int nbins[5] = {100, 1000, 5, 101, 100};
+
+   fGen = new THnSparseD("generated", "Information at generator level", 5, nbins);
+   DefineAxis(fGen->GetAxis(0), "jetpt", "p_{t,jet} (GeV/c)", jetPtBinning);
+   DefineAxis(fGen->GetAxis(1), "trackpt", "p_{t,track,gen} (GeV/c)", trackPtBinning);
+   DefineAxis(fGen->GetAxis(2), "pid", "particle type", pidBinning);
+   DefineAxis(fGen->GetAxis(3), "ncontrib", "p_{t,jet} (GeV/c)", ncontribBinning);
+   DefineAxis(fGen->GetAxis(4), "radius", "r", radiusBinning);
+   fRec = new THnSparseD("reconstructed", "Information at reconstruction level", 5, nbins);
+   DefineAxis(fRec->GetAxis(0), "jetpt", "p_{t,jet} (GeV/c)", jetPtBinning);
+   DefineAxis(fRec->GetAxis(1), "trackpt", "p_{t,track,gen} (GeV/c)", trackPtBinning);
+   DefineAxis(fRec->GetAxis(2), "pid", "particle type", pidBinning);
+   DefineAxis(fRec->GetAxis(3), "ncontrib", "p_{t,jet} (GeV/c)", ncontribBinning);
+   DefineAxis(fRec->GetAxis(4), "radius", "r", radiusBinning);
+
+   fGen->Sumw2();
+   fRec->Sumw2();
+   fOutput->Add(fGen);
+   fOutput->Add(fRec);
+
+   fCrossSection = new TProfile("CrossSection", "CrossSection", 11, -0.5, 10.5);
+   fTrials = new TH1D("Trials", "Trials", 11, -0.5, 10.5);
+   fOutput->Add(fCrossSection);
+   fOutput->Add(fTrials);
 }
 
 Bool_t SelectorTrackEffPID::Process(Long64_t entry)
@@ -74,6 +117,27 @@ Bool_t SelectorTrackEffPID::Process(Long64_t entry)
    // The return value is currently not used.
    GetEntry(entry);
 
+   double weight = JetEvent->GetCrossSection()/static_cast<double>(JetEvent->GetNumberOfTrials());
+   fCrossSection->Fill(JetEvent->GetPtHard(), JetEvent->GetCrossSection());
+   fTrials->Fill(JetEvent->GetPtHard(), JetEvent->GetNumberOfTrials());
+
+   HighPtTracks::AliReducedJetInfo *recjet(NULL);
+   HighPtTracks::AliReducedJetParticle *jetParticle(NULL);
+   int ncontrib;
+   for(TIter jetIter = TIter(JetEvent->GetListOfJets()).Begin(); jetIter != TIter::End(); ++jetIter){
+   	recjet = dynamic_cast<HighPtTracks::AliReducedJetInfo *>(*jetIter);
+   	if(!recjet) continue;
+   	TLorentzVector jetkine;
+   	recjet->FillLorentzVector(jetkine);
+   	if(TMath::Abs(jetkine.Eta()) > 0.5) continue;
+   	ncontrib = GetChargedContributors(recjet);
+
+   	for(TIter partIter = TIter(recjet->GetListOfMatchedParticles()).Begin(); partIter != TIter::End(); ++partIter){
+   		jetParticle = static_cast<HighPtTracks::AliReducedJetParticle *>(*partIter);
+   		FillParticleHistos(*jetParticle, TMath::Abs(jetkine.Pt()), ncontrib, weight);
+   	}
+   }
+
    return kTRUE;
 }
 
@@ -90,5 +154,72 @@ void SelectorTrackEffPID::Terminate()
    // The Terminate() function is the last function to be called during
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
+   std::string outputObjects[] = {"generated","reconstructed","CrossSection","Trials"};
+   TFile *outFile = new TFile("trackingEfficiency.root", "RECREATE");
+   outFile->cd();
+   for(std::string *oiter = outputObjects; oiter < outputObjects + sizeof(outputObjects)/sizeof(std::string); ++oiter)
+   	fOutput->FindObject(oiter->c_str())->Write();
+   delete outFile;
+}
 
+unsigned int SelectorTrackEffPID::GetParticleType(const HighPtTracks::AliReducedJetParticle& recparticle) const {
+	// Find species, definitions:
+	// 0 - electrons
+	// 1 - pions
+	// 2 - kaons
+	// 3 - protons
+	// 4 - other
+	unsigned int abspdg = TMath::Abs(recparticle.GetPdgCode());
+	unsigned int particles[] = {TMath::Abs(kElectron), TMath::Abs(kPiPlus), TMath::Abs(kKPlus), TMath::Abs(kProton)};
+	unsigned int result = 4;
+	for(unsigned int part = 0; part < sizeof(particles)/sizeof(unsigned int); part++){
+		if(particles[part] == abspdg){
+			result = part;
+			break;
+		}
+	}
+	return result;
+}
+
+void SelectorTrackEffPID::MakeLinearBinning(TArrayD& array, int nbins, double min, double max) const {
+	//
+	// Create linear binning
+	//
+	array.Set(nbins+1);
+	double stepsize = (max - min)/double(nbins);
+	for(int i = 0; i < nbins+1; i++) array[i] = min + i * stepsize;
+}
+
+unsigned int SelectorTrackEffPID::GetChargedContributors(const HighPtTracks::AliReducedJetInfo* recjet) const {
+	//
+	// Get the number of charged jet contributors
+	//
+	unsigned int ncontrib = 0;
+	for(TIter contIter = TIter(recjet->GetListOfConstituents()).Begin(); contIter != TIter::End(); ++contIter){
+		HighPtTracks::AliReducedJetConstituent *myconst = static_cast<HighPtTracks::AliReducedJetConstituent *>(*contIter);
+		if(!myconst->GetPDGParticle()->Charge()) continue;
+		ncontrib++;
+	}
+	return ncontrib;
+}
+
+void SelectorTrackEffPID::DefineAxis(TAxis* axis, TString name, TString title, const TArrayD& binning) const {
+	//
+	// Set name, title and binning of the axis
+	//
+	axis->SetNameTitle(name.Data(), title.Data());
+	axis->Set(binning.GetSize()-1, binning.GetArray());
+}
+
+void SelectorTrackEffPID::FillParticleHistos(const HighPtTracks::AliReducedJetParticle& part, double jetPt, unsigned int ncontrib, double weight) {
+	//
+	// Fill particle histo as defined
+	// if reconstructed particle is found, fill also reconstructed particle histo
+	//
+	TLorentzVector kine;
+	part.FillLorentzVector(kine);
+	if(TMath::Abs(kine.Eta()) > 0.8) return;
+	double content[5] = {jetPt, TMath::Abs(kine.Pt()), GetParticleType(part), static_cast<double>(ncontrib), part.GetDistanceToJetMainAxis()};
+	fGen->Fill(content, weight);
+	if(part.IsReconstructed()) fRec->Fill(content, weight);
 }

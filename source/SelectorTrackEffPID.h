@@ -11,10 +11,20 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <THnSparse.h>
 #include <TSelector.h>
 
 // Header file for the classes stored in the TTree if any.
 #include "AliReducedJetEvent.h"
+
+class TArrayD;
+class TH1;
+class TProfile;
+class TString;
+
+namespace HighPtTracks{
+class AliReducedJetParticle;
+};
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
@@ -28,7 +38,13 @@ public :
    // List of branches
    TBranch        *b_JetEvent;   //!
 
-   SelectorTrackEffPID(TTree * /*tree*/ =0) : fChain(0) { }
+   // List of output histograms
+   THnSparseD       *fGen;                    //! particles at generation level
+   THnSparseD       *fRec;                    //! particles at reconstruction level
+   TProfile         *fCrossSection;           //! Cross section histogram
+   TH1              *fTrials;                 //! Number of trials histogram
+
+   SelectorTrackEffPID(TTree * /*tree*/ =0) : fChain(0), fGen(NULL), fRec(NULL) { }
    virtual ~SelectorTrackEffPID() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
@@ -43,6 +59,13 @@ public :
    virtual TList  *GetOutputList() const { return fOutput; }
    virtual void    SlaveTerminate();
    virtual void    Terminate();
+
+protected:
+   unsigned int GetParticleType(const HighPtTracks::AliReducedJetParticle &recparticle) const;
+   void MakeLinearBinning(TArrayD &array, int nbins, double min, double max) const;
+   unsigned int GetChargedContributors(const HighPtTracks::AliReducedJetInfo *recjet) const;
+   void DefineAxis(TAxis *axis, TString name, TString title, const TArrayD &binning) const;
+   void FillParticleHistos(const HighPtTracks::AliReducedJetParticle &part, double jetPt, unsigned int ncontrib, double weight);
 
    ClassDef(SelectorTrackEffPID,0);
 };
