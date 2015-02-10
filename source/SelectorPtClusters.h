@@ -58,6 +58,7 @@ public :
    virtual void    SlaveTerminate();
    virtual void    Terminate();
 
+   void CreateDefaultPtBinning(TArrayD &binning) const;
    void MakeLinearBinning(TArrayD &array, int nbins, double min, double max) const;
    int GetChargedContributors(const HighPtTracks::AliReducedJetInfo *recjet) const;
    void DefineAxis(TAxis *axis, TString name, TString title, const TArrayD &binning) const;

@@ -22,6 +22,7 @@
 // Root > T->Process("SelectorPtClusters.C","some options")
 // Root > T->Process("SelectorPtClusters.C+")
 //
+#include <map>
 
 #include "SelectorPtClusters.h"
 #include <TDatabasePDG.h>
@@ -185,4 +186,33 @@ int SelectorPtClusters::GetChargedContributors(const HighPtTracks::AliReducedJet
 void SelectorPtClusters::DefineAxis(TAxis* axis, TString name, TString title, const TArrayD& binning) const {
   axis->SetNameTitle(name.Data(), title.Data());
   axis->Set(binning.GetSize()-1, binning.GetArray());
+}
+
+void SelectorPtClusters::CreateDefaultPtBinning(TArrayD &binning) const{
+  /*
+   * Creating the default pt binning.
+   *
+   * @param binning: Array where to store the results.
+   */
+  std::vector<double> mybinning;
+  std::map<double,double> definitions;
+  definitions.insert(std::pair<double,double>(2.5, 0.1));
+  definitions.insert(std::pair<double,double>(7., 0.25));
+  definitions.insert(std::pair<double,double>(15., 0.5));
+  definitions.insert(std::pair<double,double>(25., 1.));
+  definitions.insert(std::pair<double,double>(40., 2.5));
+  definitions.insert(std::pair<double,double>(50., 5.));
+  definitions.insert(std::pair<double,double>(100., 10.));
+  double currentval = 0;
+  for(std::map<double,double>::iterator id = definitions.begin(); id != definitions.end(); ++id){
+    double limit = id->first, binwidth = id->second;
+    while(currentval < limit){
+      currentval += binwidth;
+      mybinning.push_back(currentval);
+    }
+  }
+  binning.Set(mybinning.size());
+  int ib = 0;
+  for(std::vector<double>::iterator it = mybinning.begin(); it != mybinning.end(); ++it)
+    binning[ib++] = *it;
 }
