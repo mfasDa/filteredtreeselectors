@@ -26,6 +26,65 @@ namespace HighPtTracks{
 class AliReducedJetParticle;
 };
 
+class TrackHistogram : public TNamed{
+public:
+	TrackHistogram():
+		TNamed(),
+		fHistogram()
+	{
+		CreateDefaultBinning();
+	}
+	TrackHistogram(const char *name, const char *title):
+		TNamed(name, title),
+		fHistogram()
+	{
+		CreateDefaultBinning();
+	}
+	TrackHistogram(const TrackHistogram &ref):
+		TNamed(ref),
+		fHistogram(ref.fHistogram)
+	{
+		for(int ib = 0; ib < 5; ++ib) fBinnings[ib] = ref.fBinnings[ib];
+	}
+	TrackHistogram &operator=(const TrackHistogram &ref){
+		TNamed::operator=(ref);
+		if(this != &ref){
+			fHistogram = ref.fHistogram;
+			for(int ib = 0; ib < 5; ++ib) fBinnings[ib] = ref.fBinnings[ib];
+		}
+		return *this;
+	}
+	~TrackHistogram() { }
+
+	void SetPtBinninng(const TArrayD &binning) { fBinnings[kTrackPt] = binning; }
+	void SetJetPtBinning(const TArrayD &binnig) { fBinnings[kJetPt] = binnig; }
+	void SetRadiusBinning(const TArrayD &binning) { fBinnings[kRadius] = binning; }
+	void SetNContribBinning(const TArrayD &binning) { fBinnings[kNcontrib] = binning; }
+	void Create();
+	void Fill(double *values, double weight = 1.) { fHistogram->Fill(values,weight); }
+	THnSparse *GetHistogram() const { return fHistogram; }
+private:
+	enum Axis_t{
+		kJetPt,
+		kTrackPt,
+		kPID,
+		kNcontrib,
+		kRadius
+	};
+	void CreateDefaultBinning() {
+		double min[5] = {0., 0., -0.5, -0.5, 0.5},
+				max[5] = {200., 100., 4.5, 100.5, 0.5};
+		int nbins[5] = {100, 1000, 5, 101, 100};
+		for(int ib = 0; ib < 5; ib++) MakeLinearBinning(fBinnings[ib], nbins[ib], min[ib], max[ib]);
+	}
+   void DefineAxis(TAxis *axis, TString name, TString title, const TArrayD &binning) const;
+   void MakeLinearBinning(TArrayD &array, int nbins, double min, double max) const;
+	THnSparseD 			*fHistogram;
+	TArrayD				fBinnings[5];
+
+	ClassDef(TrackHistogram, 1);
+};
+
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
 class SelectorTrackEffPID : public TSelector {
@@ -39,12 +98,12 @@ public :
    TBranch        *b_JetEvent;   //!
 
    // List of output histograms
-   THnSparseD       *fGen;                    //! particles at generation level
-   THnSparseD       *fRec;                    //! particles at reconstruction level
+   TrackHistogram   *fGen;                    //! particles at generation level
+   TrackHistogram   *fRec;                    //! particles at reconstruction level
    TProfile         *fCrossSection;           //! Cross section histogram
    TH1              *fTrials;                 //! Number of trials histogram
 
-   SelectorTrackEffPID(TTree * /*tree*/ =0) : fChain(0), fGen(NULL), fRec(NULL) { }
+   SelectorTrackEffPID(TTree * /*tree*/ =0) : fChain(0), fGen(NULL), fRec(NULL), fCrossSection(NULL), fTrials(NULL) { }
    virtual ~SelectorTrackEffPID() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);
@@ -62,9 +121,9 @@ public :
 
 protected:
    unsigned int GetParticleType(const HighPtTracks::AliReducedJetParticle &recparticle) const;
+   void CreateDefaultPtBinning(TArrayD &binning) const;
    void MakeLinearBinning(TArrayD &array, int nbins, double min, double max) const;
    unsigned int GetChargedContributors(const HighPtTracks::AliReducedJetInfo *recjet) const;
-   void DefineAxis(TAxis *axis, TString name, TString title, const TArrayD &binning) const;
    void FillParticleHistos(const HighPtTracks::AliReducedJetParticle &part, double jetPt, unsigned int ncontrib, double weight);
 
    ClassDef(SelectorTrackEffPID,0);

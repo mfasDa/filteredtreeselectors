@@ -22,6 +22,7 @@
 // Root > T->Process("SelectorTrackEffPID.C","some options")
 // Root > T->Process("SelectorTrackEffPID.C+")
 //
+#include <map>
 #include <string>
 
 #include "SelectorTrackEffPID.h"
@@ -64,31 +65,17 @@ void SelectorTrackEffPID::SlaveBegin(TTree * /*tree*/)
    // 	Number of charged jet constituents
    // 	Distance to the main jet axis
 
-   TArrayD jetPtBinning; MakeLinearBinning(jetPtBinning, 100, 0., 200.);
-   TArrayD trackPtBinning; MakeLinearBinning(trackPtBinning, 1000, 0., 100.);
-   TArrayD pidBinning; MakeLinearBinning(pidBinning, 5, -0.5, 4.5);
-   TArrayD ncontribBinning; MakeLinearBinning(ncontribBinning, 101, -0.5, 100.5);
-   TArrayD radiusBinning; MakeLinearBinning(radiusBinning, 100, 0., 0.5);
 
-   int nbins[5] = {100, 1000, 5, 101, 100};
+   fGen = new TrackHistogram("generated", "Information at generator level");
+   fRec = new TrackHistogram("reconstructed", "Information at reconstruction level");
 
-   fGen = new THnSparseD("generated", "Information at generator level", 5, nbins);
-   DefineAxis(fGen->GetAxis(0), "jetpt", "p_{t,jet} (GeV/c)", jetPtBinning);
-   DefineAxis(fGen->GetAxis(1), "trackpt", "p_{t,track,gen} (GeV/c)", trackPtBinning);
-   DefineAxis(fGen->GetAxis(2), "pid", "particle type", pidBinning);
-   DefineAxis(fGen->GetAxis(3), "ncontrib", "p_{t,jet} (GeV/c)", ncontribBinning);
-   DefineAxis(fGen->GetAxis(4), "radius", "r", radiusBinning);
-   fRec = new THnSparseD("reconstructed", "Information at reconstruction level", 5, nbins);
-   DefineAxis(fRec->GetAxis(0), "jetpt", "p_{t,jet} (GeV/c)", jetPtBinning);
-   DefineAxis(fRec->GetAxis(1), "trackpt", "p_{t,track,gen} (GeV/c)", trackPtBinning);
-   DefineAxis(fRec->GetAxis(2), "pid", "particle type", pidBinning);
-   DefineAxis(fRec->GetAxis(3), "ncontrib", "p_{t,jet} (GeV/c)", ncontribBinning);
-   DefineAxis(fRec->GetAxis(4), "radius", "r", radiusBinning);
+   TArrayD ptbinning;
+   CreateDefaultPtBinning(ptbinning);
+   fGen->SetPtBinninng(ptbinning);
+   fRec->SetPtBinninng(ptbinning);
 
-   fGen->Sumw2();
-   fRec->Sumw2();
-   fOutput->Add(fGen);
-   fOutput->Add(fRec);
+   fOutput->Add(fGen->GetHistogram());
+   fOutput->Add(fRec->GetHistogram());
 
    fCrossSection = new TProfile("CrossSection", "CrossSection", 11, -0.5, 10.5);
    fTrials = new TH1D("Trials", "Trials", 11, -0.5, 10.5);
@@ -203,14 +190,6 @@ unsigned int SelectorTrackEffPID::GetChargedContributors(const HighPtTracks::Ali
 	return ncontrib;
 }
 
-void SelectorTrackEffPID::DefineAxis(TAxis* axis, TString name, TString title, const TArrayD& binning) const {
-	//
-	// Set name, title and binning of the axis
-	//
-	axis->SetNameTitle(name.Data(), title.Data());
-	axis->Set(binning.GetSize()-1, binning.GetArray());
-}
-
 void SelectorTrackEffPID::FillParticleHistos(const HighPtTracks::AliReducedJetParticle& part, double jetPt, unsigned int ncontrib, double weight) {
 	//
 	// Fill particle histo as defined
@@ -222,4 +201,60 @@ void SelectorTrackEffPID::FillParticleHistos(const HighPtTracks::AliReducedJetPa
 	double content[5] = {jetPt, TMath::Abs(kine.Pt()), GetParticleType(part), static_cast<double>(ncontrib), part.GetDistanceToJetMainAxis()};
 	fGen->Fill(content, weight);
 	if(part.IsReconstructed()) fRec->Fill(content, weight);
+}
+
+void SelectorTrackEffPID::CreateDefaultPtBinning(TArrayD &binning) const{
+  /*
+   * Creating the default pt binning.
+   *
+   * @param binning: Array where to store the results.
+   */
+  std::vector<double> mybinning;
+  std::map<double,double> definitions;
+  definitions.insert(std::pair<double,double>(2.5, 0.1));
+  definitions.insert(std::pair<double,double>(7., 0.25));
+  definitions.insert(std::pair<double,double>(15., 0.5));
+  definitions.insert(std::pair<double,double>(25., 1.));
+  definitions.insert(std::pair<double,double>(40., 2.5));
+  definitions.insert(std::pair<double,double>(50., 5.));
+  definitions.insert(std::pair<double,double>(100., 10.));
+  double currentval = 0;
+  for(std::map<double,double>::iterator id = definitions.begin(); id != definitions.end(); ++id){
+    double limit = id->first, binwidth = id->second;
+    while(currentval < limit){
+      currentval += binwidth;
+      mybinning.push_back(currentval);
+    }
+  }
+  binning.Set(mybinning.size());
+  int ib = 0;
+  for(std::vector<double>::iterator it = mybinning.begin(); it != mybinning.end(); ++it)
+    binning[ib++] = *it;
+}
+
+void TrackHistogram::Create() {
+	int nbins[5];
+	TString axisNames[5] = {"jetpt", "trackpt", "pid", "ncontrib", "radius"},
+			axisTitles[5] = {"p_{t,jet} (GeV/c)", "p_{t,track,gen} (GeV/c)", "particle type", "n_{contrib, charged}", "r"};
+	for(int ib = 0; ib < 5; ++ib) nbins[ib] = fBinnings[ib].GetSize() - 1;
+	fHistogram = new THnSparseD(GetName(), GetTitle(), 5, nbins);
+	for(int ib = 0; ib < 5; ++ib) DefineAxis(fHistogram->GetAxis(ib), axisNames[ib], axisTitles[ib], fBinnings[ib]);
+	fHistogram->Sumw2();
+}
+
+void TrackHistogram::DefineAxis(TAxis* axis, TString name, TString title, const TArrayD& binning) const {
+	//
+	// Set name, title and binning of the axis
+	//
+	axis->SetNameTitle(name.Data(), title.Data());
+	axis->Set(binning.GetSize()-1, binning.GetArray());
+}
+
+void TrackHistogram::MakeLinearBinning(TArrayD& array, int nbins, double min, double max) const {
+	//
+	// Create linear binning
+	//
+	array.Set(nbins+1);
+	double stepsize = (max - min)/double(nbins);
+	for(int i = 0; i < nbins+1; i++) array[i] = min + i * stepsize;
 }
