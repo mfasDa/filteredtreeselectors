@@ -74,6 +74,9 @@ void SelectorTrackEffPID::SlaveBegin(TTree * /*tree*/)
    fGen->SetPtBinninng(ptbinning);
    fRec->SetPtBinninng(ptbinning);
 
+   fGen->Create();
+   fRec->Create();
+
    fOutput->Add(fGen->GetHistogram());
    fOutput->Add(fRec->GetHistogram());
 
