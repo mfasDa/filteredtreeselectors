@@ -72,7 +72,7 @@ private:
 		kRadius
 	};
 	void CreateDefaultBinning() {
-		double min[5] = {0., 0., -0.5, -0.5, 0.5},
+		double min[5] = {0., 0., -0.5, -0.5, 0.0},
 				max[5] = {200., 100., 4.5, 100.5, 0.5};
 		int nbins[5] = {100, 1000, 5, 101, 100};
 		for(int ib = 0; ib < 5; ib++) MakeLinearBinning(fBinnings[ib], nbins[ib], min[ib], max[ib]);
