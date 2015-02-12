@@ -28,7 +28,12 @@ public :
    // List of branches
    TBranch        *b_JetEvent;   //!
 
-   SelectorParticleRdist(TTree * /*tree*/ =0) : fChain(0) { }
+   TH1				*hRgen;			//! 2-particle R-distribution of generated particles
+   TH1				*hRrec;			//! 2-particle R-distribution of reconstructed particles
+   TH1				*hRrecPartial;	//! 2-particle R-distribution of partially particles
+   TH1				*hRnorec;		//! 2-particle R-distribution of non-reconstructed particles
+
+   SelectorParticleRdist(TTree * /*tree*/ =0) : fChain(0), hRgen(0), hRrec(0)  { }
    virtual ~SelectorParticleRdist() { }
    virtual Int_t   Version() const { return 2; }
    virtual void    Begin(TTree *tree);

@@ -22,9 +22,11 @@
 // Root > T->Process("SelectorParticleRdist.C","some options")
 // Root > T->Process("SelectorParticleRdist.C+")
 //
+#include <string>
 
 #include "SelectorParticleRdist.h"
 #include <TH2.h>
+#include <TObjArray.h>
 #include <TStyle.h>
 #include <TLorentzVector.h>
 
@@ -51,6 +53,15 @@ void SelectorParticleRdist::SlaveBegin(TTree * /*tree*/)
 
    TString option = GetOption();
 
+   hRgen = new TH1D("Rgenerated", "2-particle R-distribution at generation level; R; Entries", 200, 0., 1.);
+   hRrec = new TH1D("Rreconstructed", "2-particle R-distribution at reconstruction level; R; Entries", 200, 0., 1.);
+   hRrecPartial = new TH1D("RreconstructedPartial", "2-particle R-distribution at reconstruction level (only one of the particle reconstructed); R; Entries", 200, 0., 1.);
+   hRnorec = new TH1D("RNonreconstructed", "2-particle R-distribution at reconstruction level (non of the two particles reconstructed); R; Entries", 200, 0., 1.);
+
+   fOutput->Add(hRgen);
+   fOutput->Add(hRrec);
+   fOutput->Add(hRrecPartial);
+   fOutput->Add(hRnorec);
 }
 
 Bool_t SelectorParticleRdist::Process(Long64_t entry)
@@ -74,6 +85,34 @@ Bool_t SelectorParticleRdist::Process(Long64_t entry)
    // The return value is currently not used.
    GetEntry(entry);
 
+   double weight = JetEvent->GetCrossSection()/static_cast<double>(JetEvent->GetNumberOfTrials());
+
+   for(TIter jetIter = TIter(JetEvent->GetListOfJets()).Begin(); jetIter != TIter::End(); ++jetIter){
+   	HighPtTracks::AliReducedJetInfo *recjet = dynamic_cast<HighPtTracks::AliReducedJetInfo *>(*jetIter);
+   	TObjArray *recParticles = recjet->GetListOfMatchedParticles();
+   	for(int ipart = 0; ipart < recParticles->GetEntries()-1; ipart++){ // Only correlation with particles with ID > larger than own ID to avoid double counting
+   		HighPtTracks::AliReducedJetParticle *mainpart = dynamic_cast<HighPtTracks::AliReducedJetParticle *>(recParticles->At(ipart));
+   		TLorentzVector mainkine;
+   		mainpart->FillLorentzVector(mainkine);
+   		for(int jpart = ipart + 1; jpart < recParticles->GetEntries(); ++jpart){
+   			HighPtTracks::AliReducedJetParticle *assocpart = dynamic_cast<HighPtTracks::AliReducedJetParticle *>(recParticles->At(jpart));
+   			TLorentzVector assockine;
+   			assocpart->FillLorentzVector(assockine);
+
+   			double dr = mainkine.DeltaR(assockine);
+   			hRgen->Fill(dr, weight);
+   			if(mainpart->IsReconstructed() && assocpart->IsReconstructed())
+   				hRrec->Fill(dr, weight);
+   			else{
+   				if(mainpart->IsReconstructed() || assocpart->IsReconstructed())
+   					hRrecPartial->Fill(dr, weight);
+   				else
+   					hRnorec->Fill(dr, weight);
+   			}
+   		}
+   	}
+   }
+
    return kTRUE;
 }
 
@@ -91,4 +130,10 @@ void SelectorParticleRdist::Terminate()
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
 
+	std::string histnames[] = {"Rgenerated", "Rreconstructed", "RreconstructedPartial", "RNonreconstructed"};
+	TFile *out = new TFile("ParticleRdist.root", "RECREATE");
+	out->cd();
+	for(std::string *histiter = histnames; histiter < histnames + sizeof(histnames)/sizeof(std::string); ++histiter)
+		fOutput->FindObject(histiter->c_str())->Write();
+	delete out;
 }
