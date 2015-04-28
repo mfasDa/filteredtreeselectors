@@ -22,6 +22,10 @@ namespace EMCalTriggerPtAnalysis{
 class AliEMCalHistoContainer;
 }
 
+namespace HighPtTracks{
+class AliReducedJetParticle;
+}
+
 class ParticleDeltaRSelector : public TSelector {
 public :
    TTree          *fChain;   //!pointer to the analyzed TTree or TChain

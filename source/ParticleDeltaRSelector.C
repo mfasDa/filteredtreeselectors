@@ -26,6 +26,7 @@
 #include "ParticleDeltaRSelector.h"
 #include <TDatabasePDG.h>
 #include <TH2.h>
+#include <TMath.h>
 #include <TParticlePDG.h>
 #include <TStyle.h>
 #include <TLorentzVector.h>
@@ -89,6 +90,10 @@ void ParticleDeltaRSelector::SlaveBegin(TTree * /*tree*/)
             200, 0., 100., 200, 0., 100.);
       fHistos->CreateTH2(Form("hDrTrackNeighborHighPt_jet%d_%d", ipt, ipt+20),
             Form("Dr of leading vs subleading charged contributor for jets with pt within [%d,%d] GeV/c", ipt, ipt+20),
+            200,0.,100.,100,0.,0.5);
+      // distance to main jet axis for particles with depending on jet pt and trackPt
+      fHistos->CreateTH2(Form("hDrTrackMainJetAxis_jet%d_%d", ipt, ipt+20),
+            Form("Dr of particle to the main jet axis for jets with pt within [%d,%d] GeV/c", ipt, ipt+20),
             200,0.,100.,100,0.,0.5);
    }
 
@@ -170,8 +175,11 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
       // and find nearest neighbor
       for(TIter partIter = TIter(recjet->GetListOfMatchedParticles()).Begin(); partIter != TIter::End(); ++partIter){
          leadingPart = (*partIter);
+         if(!TDatabasePDG::Instance()->GetParticle(leadingPart->GetPdgCode())->Charge()) continue;
          TLorentzVector partvec;
          leadingPart->FillLorentzVector(partvec);
+         if(TMath::Abs(partvec.Eta()) > 0.8) continue;
+         fHistos->FillTH2(Form("hDrTrackMainJetAxis_jet%d_%d", xmin, xmax), partvec.Pt(), jetvec.DrEtaPhi(partvec));
          if(TMath::Abs(partvec.Pt()) < 30.) continue;
          neighbor = GetNearestNeighbor(leadingPart, recjet);
          if(neighbor){
@@ -259,7 +267,7 @@ HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetSubleadingPartic
 
 HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetNearestNeighbor(const HighPtTracks::AliReducedJetParticle* inputparticle,
       HighPtTracks::AliReducedJetInfo *recjet, double minpt) const {
-   HighPtTracks::AliReducedJetParticle* testpart(NULL), selected(NULL);
+   HighPtTracks::AliReducedJetParticle *testpart(NULL), *selected(NULL);
    double mindistance = 1000.;
    TLorentzVector partvec;
    inputparticle->FillLorentzVector(partvec);
@@ -272,7 +280,7 @@ HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetNearestNeighbor(
       if(TMath::Abs(testvec.Pt()) < minpt) continue;
       if(TMath::Abs(testvec.Eta()) > 0.8) continue;
       double dr = partvec.DrEtaPhi(testvec);
-      if(dr < mindistance{
+      if(dr < mindistance){
          selected = testpart;
          mindistance = dr;
       }
