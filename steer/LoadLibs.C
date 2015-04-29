@@ -4,6 +4,9 @@
  *  Created on: Jan 30, 2015
  *      Author: markus
  */
+#if !defined __CINT__ || defined __MAKECINT__
+#include <TSystem.h>
+#endif
 
 void LoadLibs(){
         gSystem->Load("libPWGEMCAL");

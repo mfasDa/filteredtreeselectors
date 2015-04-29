@@ -57,6 +57,7 @@ void ParticleDeltaRSelector::SlaveBegin(TTree * /*tree*/)
    TString option = GetOption();
 
    fHistos = new EMCalTriggerPtAnalysis::AliEMCalHistoContainer("deltaRhistos");
+   fHistos->ReleaseOwner();            // fOutput will take care of histograms
    fHistos->CreateTH1("hPtHard", "Pt of the hard interaction", 3000, 0., 300);
    fHistos->CreateTH1("hNTrials", "Number of trials", 1, 0.5, 1.5);
    fHistos->CreateTProfile("hCrossSection", "Cross section", 1, 0.5, 1.5);
