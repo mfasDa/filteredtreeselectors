@@ -128,14 +128,20 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
    std::cout << "Reading next entry" << std::endl;
    GetEntry(entry);
 
+   if(!JetEvent){
+      std::cout << "Failed reading jet event" << std::endl;
+   }
+
    fHistos->FillTH1("hPtHard", JetEvent->GetPtHard());
    fHistos->FillTH1("hNTrials", 1., JetEvent->GetNumberOfTrials());
    fHistos->FillProfile("hCrossSection", 1., JetEvent->GetCrossSection());
 
    // Iterate over reconstructed jets
+   std::cout << "Iterating over jets" << std::endl;
    HighPtTracks::AliReducedJetInfo *recjet(NULL);
    HighPtTracks::AliReducedJetParticle *leadingPart(NULL), *subleadingpart(NULL), *neighbor(NULL), *neighborHighPt(NULL);
    for(TIter jetIter(JetEvent->GetListOfJets()); jetIter != TIter::End(); ++jetIter){
+      std::cout << "Next jet" << std::cout;
       recjet = static_cast<HighPtTracks::AliReducedJetInfo *>(*jetIter);
       // request at least 2 charged contributors
       int ncontrib(0);
@@ -145,6 +151,7 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
          ncontrib++;
       }
       if(ncontrib < 2) continue;
+      std::cout << "Jet selected" << std::endl;
 
       // Get reconstructed jet kinematics
       TLorentzVector jetvec;
@@ -154,6 +161,7 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
 
       leadingPart = GetLeadingParticle(recjet);
       if(leadingPart){
+         std::cout << "Found leading track" << std::endl;
          TLorentzVector leadingvec;
          leadingPart->FillLorentzVector(leadingvec);
          // Fill pt spectrum of leading particles
@@ -169,16 +177,20 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
          // Get subleading track
          subleadingpart = GetSubleadingParticle(recjet);
          if(subleadingpart){
+            std::cout << "subleading particle found" << std::endl;
             TLorentzVector subleadingvec;
             subleadingpart->FillLorentzVector(subleadingvec);
             fHistos->FillTH2(Form("hPtLeadingVsSubleading_jetpt%d_%d", int(xmin), int(xmax)), TMath::Abs(leadingvec.Pt()), TMath::Abs(subleadingvec.Pt()));
             fHistos->FillTH2(Form("hDrLeadingSubleading_jetpt%d_%d", int(xmin), int(xmax)), TMath::Abs(leadingvec.Pt()), TMath::Abs(leadingvec.DrEtaPhi(subleadingvec)));
+            std::cout << "Finished subleading particle" << std::endl;
          }
+         std::cout << "Finished leading particle" << std::endl;
       }
 
       // Iterate over all particles, select those with pt above 30 GeV/c
       // and find nearest neighbor
       for(TIter partIter = TIter(recjet->GetListOfMatchedParticles()).Begin(); partIter != TIter::End(); ++partIter){
+         std::cout << "Iterate over high-pt particles" << std::endl;
          leadingPart = static_cast<HighPtTracks::AliReducedJetParticle *>(*partIter);
          if(!TDatabasePDG::Instance()->GetParticle(leadingPart->GetPdgCode())->Charge()) continue;
          TLorentzVector partvec;
@@ -186,23 +198,30 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
          if(TMath::Abs(partvec.Eta()) > 0.8) continue;
          fHistos->FillTH2(Form("hDrTrackMainJetAxis_jet%d_%d", xmin, xmax), partvec.Pt(), jetvec.DrEtaPhi(partvec));
          if(TMath::Abs(partvec.Pt()) < 30.) continue;
+         std::cout << "High-pt particle found" << std::endl;
          neighbor = GetNearestNeighbor(leadingPart, recjet);
          if(neighbor){
+            std::cout << "Neighbor found" << std::endl;
             TLorentzVector neighborvec;
             neighbor->FillLorentzVector(neighborvec);
             fHistos->FillTH2(Form("hPtTrackNeighbor_jet%d_%d", xmin, xmax), TMath::Abs(partvec.Pt()), TMath::Abs(neighborvec.Pt()));
             fHistos->FillTH2(Form("hDrTrackNeighbor_jet%d_%d", xmin, xmax), TMath::Abs(partvec.Pt()), TMath::Abs(partvec.DrEtaPhi(neighborvec)));
+            std::cout << "Finished neighbor" << std::endl;
          }
 
          // min. neighbor pt = 30 GeV/c
          neighborHighPt = GetNearestNeighbor(leadingPart, recjet, 30.);
          if(neighborHighPt){
+            std::cout << "High-pt neighbor found" << std::endl;
             TLorentzVector neighborvec;
             neighborHighPt->FillLorentzVector(neighborvec);
             fHistos->FillTH2(Form("hPtTrackNeighborHighPt_jet%d_%d", xmin, xmax), TMath::Abs(partvec.Pt()), TMath::Abs(neighborvec.Pt()));
             fHistos->FillTH2(Form("hDrTrackNeighborHighPt_jet%d_%d", xmin, xmax), TMath::Abs(partvec.Pt()), TMath::Abs(partvec.DrEtaPhi(neighborvec)));
+            std::cout << "Finished high-pt neighbor" << std::endl;
          }
+         std::cout << "Finished high-pt particle" << std::endl;
       }
+      std::cout << "Finished jet" <<std::endl;
    }
 
    return kTRUE;
@@ -235,6 +254,7 @@ void ParticleDeltaRSelector::Terminate()
 }
 
 HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetLeadingParticle(const HighPtTracks::AliReducedJetInfo *recjet) const {
+   std::cout << "Getting leading particle" << std::endl;
    HighPtTracks::AliReducedJetParticle *jettrack = NULL,
          *tmptrack = NULL;
    double leadingPt(0.);
@@ -249,10 +269,12 @@ HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetLeadingParticle(
          leadingPt = TMath::Abs(partvec.Pt());
       }
    }
+   std::cout << "Getting leading particle done" << std::endl;
    return jettrack;
 }
 
 HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetSubleadingParticle(const HighPtTracks::AliReducedJetInfo* recjet) const {
+   std::cout << "Getting subleading particle" << std::endl;
    HighPtTracks::AliReducedJetParticle *leadingtrack = NULL,
          *subleadingtrack = NULL,
          *tmptrack = NULL;
@@ -269,11 +291,13 @@ HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetSubleadingPartic
          leadingPt = TMath::Abs(partvec.Pt());
       }
    }
+   std::cout << "Getting subleading particle done" << std::endl;
    return subleadingtrack;
 }
 
 HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetNearestNeighbor(const HighPtTracks::AliReducedJetParticle* inputparticle,
       HighPtTracks::AliReducedJetInfo *recjet, double minpt) const {
+   std::cout << "Getting nearest neighbor"<<std::endl;
    HighPtTracks::AliReducedJetParticle *testpart(NULL), *selected(NULL);
    double mindistance = 1000.;
    TLorentzVector partvec;
@@ -292,6 +316,7 @@ HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetNearestNeighbor(
          mindistance = dr;
       }
    }
+   std::cout << "Getting nearest neighbor done"<<std::endl;
    return selected;
 }
 
