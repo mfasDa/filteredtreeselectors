@@ -259,6 +259,7 @@ HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetLeadingParticle(
          *tmptrack = NULL;
    double leadingPt(0.);
    for(TIter partIter = TIter(recjet->GetListOfMatchedParticles()); partIter != TIter::End(); ++partIter){
+      std::cout << (*partIter)->IsA()->GetName() << std::endl;
       tmptrack = static_cast<HighPtTracks::AliReducedJetParticle *>(*partIter);
       if(!TDatabasePDG::Instance()->GetParticle(tmptrack->GetPdgCode())->Charge()) continue;		// select only charged particles
       TLorentzVector partvec;
