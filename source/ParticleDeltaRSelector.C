@@ -23,6 +23,8 @@
 // Root > T->Process("ParticleDeltaRSelector.C+")
 //
 
+#include <iostream>
+
 #include "ParticleDeltaRSelector.h"
 #include <TDatabasePDG.h>
 #include <TH2.h>
@@ -53,7 +55,7 @@ void ParticleDeltaRSelector::SlaveBegin(TTree * /*tree*/)
    // The SlaveBegin() function is called after the Begin() function.
    // When running with PROOF SlaveBegin() is called on each slave server.
    // The tree argument is deprecated (on PROOF 0 is passed).
-
+   std::cout << "Creating histos on Slave" << std::endl;
    TString option = GetOption();
 
    fHistos = new EMCalTriggerPtAnalysis::AliEMCalHistoContainer("deltaRhistos");
@@ -101,6 +103,7 @@ void ParticleDeltaRSelector::SlaveBegin(TTree * /*tree*/)
    // Add outputhistos to histlist
    for(TIter histiter = TIter(fHistos->GetListOfHistograms()).Begin(); histiter != TIter::End(); ++histiter)
       fOutput->Add(*histiter);
+   std::cout << "Finished creating histograms" << std::endl;
 }
 
 Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
@@ -122,6 +125,7 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
    // Use fStatus to set the return value of TTree::Process().
    //
    // The return value is currently not used.
+   std::cout << "Reading next entry" << std::endl;
    GetEntry(entry);
 
    fHistos->FillTH1("hPtHard", JetEvent->GetPtHard());
@@ -218,6 +222,7 @@ void ParticleDeltaRSelector::Terminate()
    // a query. It always runs on the client, it can be used to present
    // the results graphically or save the results to file.
 
+   std::cout << "Writing results to DeltaRHistos.root" << std::endl;
    TFile *output = new TFile("DeltaRHistos.root", "RECREATE");
    for(TIter contentIter = TIter(fOutput).Begin(); contentIter != TIter::End(); ++contentIter){
       if((*contentIter)->InheritsFrom("TCollection"))
@@ -225,6 +230,7 @@ void ParticleDeltaRSelector::Terminate()
       else
          (*contentIter)->Write();
    }
+   std::cout << "Finished writing output file" << std::endl;
    delete output;
 }
 
