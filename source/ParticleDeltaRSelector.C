@@ -116,7 +116,7 @@ void ParticleDeltaRSelector::SlaveBegin(TTree * /*tree*/)
    fHistos->CreateTH2("hPtTrackNeighborHighPt_jet200_1000",
          "pt of track vs nearest neighbor for jets with pt within [%d,%d] GeV/c",
          200, 0., 100., 200, 0., 100.);
-   fHistos->CreateTH2(Form("hDrTrackNeighborHighPt_jet200_1000",
+   fHistos->CreateTH2("hDrTrackNeighborHighPt_jet200_1000",
          "Dr of leading vs subleading charged contributor for jets with pt within [200,infty] GeV/c",
          200,0.,100.,100,0.,0.5);
    // distance to main jet axis for particles with depending on jet pt and trackPt
