@@ -141,7 +141,7 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
    HighPtTracks::AliReducedJetInfo *recjet(NULL);
    HighPtTracks::AliReducedJetParticle *leadingPart(NULL), *subleadingpart(NULL), *neighbor(NULL), *neighborHighPt(NULL);
    for(TIter jetIter(JetEvent->GetListOfJets()); jetIter != TIter::End(); ++jetIter){
-      std::cout << "Next jet" << std::cout;
+      std::cout << "Next jet" << std::endl;
       recjet = static_cast<HighPtTracks::AliReducedJetInfo *>(*jetIter);
       // request at least 2 charged contributors
       int ncontrib(0);
@@ -254,10 +254,11 @@ void ParticleDeltaRSelector::Terminate()
 }
 
 HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetLeadingParticle(const HighPtTracks::AliReducedJetInfo *recjet) const {
-   std::cout << "Getting leading particle" << std::endl;
+   std::cout << "Getting leading particle for jet " << recjet << std::endl;
    HighPtTracks::AliReducedJetParticle *jettrack = NULL,
          *tmptrack = NULL;
    double leadingPt(0.);
+   std::cout << "Iterate over list " << recjet->GetListOfMatchedParticles() << std::endl;
    for(TIter partIter = TIter(recjet->GetListOfMatchedParticles()); partIter != TIter::End(); ++partIter){
       std::cout << (*partIter)->IsA()->GetName() << std::endl;
       tmptrack = static_cast<HighPtTracks::AliReducedJetParticle *>(*partIter);
