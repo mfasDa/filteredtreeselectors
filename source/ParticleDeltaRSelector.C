@@ -174,7 +174,7 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
       // Iterate over all particles, select those with pt above 30 GeV/c
       // and find nearest neighbor
       for(TIter partIter = TIter(recjet->GetListOfMatchedParticles()).Begin(); partIter != TIter::End(); ++partIter){
-         leadingPart = (*partIter);
+         leadingPart = static_cast<HighPtTracks::AliReducedJetParticle *>(*partIter);
          if(!TDatabasePDG::Instance()->GetParticle(leadingPart->GetPdgCode())->Charge()) continue;
          TLorentzVector partvec;
          leadingPart->FillLorentzVector(partvec);
@@ -249,7 +249,7 @@ HighPtTracks::AliReducedJetParticle* ParticleDeltaRSelector::GetSubleadingPartic
    HighPtTracks::AliReducedJetParticle *leadingtrack = NULL,
          *subleadingtrack = NULL,
          *tmptrack = NULL;
-   double leadingPt(NULL);
+   double leadingPt(0);
    for(TIter partIter = TIter(recjet->GetListOfMatchedParticles()); partIter != TIter::End(); ++partIter){
       tmptrack = static_cast<HighPtTracks::AliReducedJetParticle *>(*partIter);
       if(!TDatabasePDG::Instance()->GetParticle(tmptrack->GetPdgCode())->Charge()) continue;		// select only charged particles
