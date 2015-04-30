@@ -62,6 +62,7 @@ void ParticleDeltaRSelector::SlaveBegin(TTree * /*tree*/)
    fHistos->CreateTH1("hPtHard", "Pt of the hard interaction", 3000, 0., 300);
    fHistos->CreateTH1("hNTrials", "Number of trials", 1, 0.5, 1.5);
    fHistos->CreateTProfile("hCrossSection", "Cross section", 1, 0.5, 1.5);
+   fHistos->CreateTH1("hJetPt", "pt spectrum of reconstructed jets", 100, 0., 1000);
    fHistos->CreateTH1("hPtTrackLeading", "Pt of the leading track in jet", 200, 0., 200);
    fHistos->CreateTH1("hPtTrackLeadingRec", "Pt of the reconstructed leading track in jet", 200, 0., 200);
    fHistos->CreateTH1("hPtTrackLeadingNoRec", "Pt of the reconstructed leading track in jet", 200, 0., 200);
@@ -161,11 +162,14 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
    // Iterate over reconstructed jets
    HighPtTracks::AliReducedJetInfo *recjet(NULL);
    HighPtTracks::AliReducedJetParticle *leadingPart(NULL), *subleadingpart(NULL), *neighbor(NULL), *neighborHighPt(NULL);
-   for(TIter jetIter(JetEvent->GetListOfJets()); jetIter != TIter::End(); ++jetIter){
+   for(TIter jetIter = TIter(JetEvent->GetListOfJets()).Begin(); jetIter != TIter::End(); ++jetIter){
       recjet = static_cast<HighPtTracks::AliReducedJetInfo *>(*jetIter);
+      TLorentzVector jetvec;
+      recjet->FillLorentzVector(jetvec);
+      fHistos->FillTH1("hJetPt", TMath::Abs(jetvec.Pt()));
       // request at least 2 charged contributors
       int ncontrib(0);
-      for(TIter contIter = TIter(recjet->GetListOfConstituents()); contIter != TIter::End(); ++contIter){
+      for(TIter contIter = TIter(recjet->GetListOfConstituents()).Begin(); contIter != TIter::End(); ++contIter){
          HighPtTracks::AliReducedJetConstituent *cont = static_cast<HighPtTracks::AliReducedJetConstituent *>(*contIter);
          if(!cont->GetPDGParticle()->Charge()) continue;
          ncontrib++;
@@ -173,8 +177,6 @@ Bool_t ParticleDeltaRSelector::Process(Long64_t entry)
       if(ncontrib < 2) continue;
 
       // Get reconstructed jet kinematics
-      TLorentzVector jetvec;
-      recjet->FillLorentzVector(jetvec);
       double xmin(0), xmax(0);
       GetJetPtHistLimits(TMath::Abs(jetvec.Pt()), xmin, xmax);
       if(xmin < 1e-5 && xmax < 1e-5){
