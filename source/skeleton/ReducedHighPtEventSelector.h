@@ -14,7 +14,7 @@
 #include <TSelector.h>
 
 // Header file for the classes stored in the TTree if any.
-#include "/home/markus/alisoft/aliphysics/mfaselDev/src/PWGJE/EMCALJetTasks/Tracks/AliReducedHighPtEvent.h"
+#include "AliReducedHighPtEvent.h"
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
 
