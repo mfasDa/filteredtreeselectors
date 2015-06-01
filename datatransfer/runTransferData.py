@@ -3,7 +3,6 @@ import os, sys, commands, getopt
 
 if __name__ == "__main__":
     sys.path.append("%s:%s" %(os.getenv("PYTHONPATH"), os.path.basename(sys.argv[0])))
-    #os.setenv("PYTHONPATH", "%s:%s" %(os.getenv("PYTHONPATH"), os.path.basename(sys.argv[0])))
 
 from copyDerivedData import doTransfer
 
@@ -30,7 +29,7 @@ def FindRuns(inputdir,trainID, recpass = None):
     runlist = alien_ls(inputdir)
     datalist = []
     for r in runlist:
-        print "Doing %s" %r
+        # print "Doing %s" %r
         if recpass and "pthard" in recpass:
             pthardbins = alien_ls("%s/%s" %(inputdir, r))
             for ib in pthardbins:
@@ -44,10 +43,10 @@ def FindRuns(inputdir,trainID, recpass = None):
                         datalist.append(RunStruct(r, "%s/%s" %(passdir, trainID), ib))
         else:
             passdir = "%s/%s/%s/PWGJE/Jets_EMC_pPb" %(inputdir, r, recpass) if recpass else "%s/%s/PWGJE/Jets_EMC_pPb" %(inputdir, r)
-            print "Passdir %s" %passdir
+            # print "Passdir %s" %passdir
             trainlist = alien_ls(passdir)
             for train in trainlist:
-                print "train %s" %(train)
+                # print "train %s" %(train)
                 if train == trainID:
                     print "requested train ID %s found for run %s" %(trainID, r)
                     datalist.append(RunStruct(r, "%s/%s" %(passdir, trainID)))

@@ -48,9 +48,10 @@ def alien_find(basedir, pattern):
     #print files
     result = []
     for found in filelist:
-        #print found
+        print found
         if not basedir in found:
             continue
+        found = found.rstrip()
         result.append(found)
     return result
 
