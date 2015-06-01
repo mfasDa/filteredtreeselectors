@@ -69,6 +69,7 @@ void TrackPtSelector::SlaveBegin(TTree * /*tree*/)
    std::string triggernames[kNtriggers] = {"MinBias", "EMCGHigh", "EMCGLow", "EMCJHigh", "EMCJLow"};
    for(std::string *trigger = triggernames; trigger < triggernames + kNtriggers; ++trigger){
    	std::cout << "Creating histogram for trigger " << *trigger << std::endl;
+   	fHistos->CreateTH1(Form("hEvents%s", trigger->c_str()), Form("Event count for trigger class %s", trigger->c_str()), 1, 0.5, 1.5);
    	fHistos->CreateTH1(Form("hEnergy%s", trigger->c_str()), Form("Cluster energy for trigger class %s", trigger->c_str()), ptBinning);
    	fHistos->CreateTH1(Form("hPt%s", trigger->c_str()), Form("Track pt for trigger class %s", trigger->c_str()), ptBinning);
    	if(strcmp(trigger->c_str(), "MinBias"))
@@ -113,6 +114,10 @@ Bool_t TrackPtSelector::Process(Long64_t entry)
 	if(ReducedEvent->IsJetLowFromString()) triggerstrings.push_back("EMCJLow");
 	if(ReducedEvent->IsGammaHighFromString()) triggerstrings.push_back("EMCGHigh");
 	if(ReducedEvent->IsGammaLowFromString()) triggerstrings.push_back("EMCGLow");
+	if(!triggerstrings.size()) return kFALSE; 		// event not selected
+
+	for(std::vector<std::string>::iterator trigger = triggerstrings.begin(); trigger != triggerstrings.end(); ++trigger)
+		fHistos->FillTH1(Form("hEvents%s", trigger->c_str()), 1);
 
 	HighPtTracks::AliReducedPatchContainer *triggerpatches = ReducedEvent->GetPatchContainer();
 	for(TIter patchIter = TIter(triggerpatches->GetTriggerPatches(kFALSE, HighPtTracks::AliReducedPatchContainer::kEMCJetHigh)).Begin(); patchIter != TIter::End(); ++patchIter){
